@@ -7,7 +7,8 @@ export ROOTINC=`root-config --incdir`
 ifdef OPT 
   OPTM=$(OPT)
 else
-  OPTM=-O2
+  OPTM=-O1
+  #OPTM=-O2
 endif
 
 FIT_C = $(filter-out TCSana.cc $(FIT_CT))
