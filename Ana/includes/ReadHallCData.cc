@@ -23,7 +23,7 @@ float hms_cal_en_cut = 0.4, hms_cer_npe_cut = 2;
 float shms_aero_npe_cut = 2, shms_hgcer_npe_cut = 2;
 
 
-void ReadHallCData::Loop (vector <string> vector_name, vector <int> run_index){ //, string beamtype,bool MC)
+void ReadHallCData::Loop (vector <string> vector_name, int runID, string  process, string what, string target){
 
 	iChain=new TChain("T");
 	for (unsigned int i=0;i<vector_name.size();i++){
@@ -339,7 +339,7 @@ ReadHallCData::~ReadHallCData()
 
 
 
-ReadHallCData::ReadHallCData () //: fChain(0) 
+ReadHallCData::ReadHallCData () : iChain(0) 
 {
 	cout<<"init class"<< endl;
 }

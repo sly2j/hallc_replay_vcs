@@ -12,23 +12,26 @@ int main (int argc, char **argv){
 
 	if (argc<4) {
 		cout<<"HELP / use arguments: "<<endl;
-		cout<<"give arguments in following order, with flag"<<endl;
+		cout<<"give arguments in following order"<<endl;
+		cout<<"example: ./HallCdata vcs ana LH2 8585 -f ../ROOTfiles/coin_reco_8585_1000000.root"<<endl;
 	
 		cout<<"1) Process:"<<endl;
-		cout<<"	  hallc"<<endl;
+		cout<<"	  elastic or vcs or pi0"<<endl;
 	
 		cout<<"2) What to do:"<<endl;
-		//cout<<"   gen = just read generated data"<<endl;
-		//cout<<"   rec = MC including acceptance (rates)" <<endl;
-		cout<<"   real"<<endl;
+		cout<<"   ana (create ana histos and root files), reduce (only root files)"<<endl;
 	
-		cout<<"3) polar: "<<endl;
-		cout<<"lin"<<endl;
+		cout<<"3) which target: "<<endl;
+		cout<<"LH2 or dummy"<<endl;
+
+		cout<<"4) run number: "<<endl;
 		
-		cout<<"4) File type: "<<endl;
+		cout<<"5) -f File name(s) or file list: "<<endl;
 		cout<<"   -f or -files = single file or root file list given in header"<<endl;
-		//cout<<"   Warning: if use this option, the file name or list has to be followed by -f, -ff or -end sign"<<endl;
 		cout<<"   -l or -list = name of text file containing the list of root files"<<endl;
+		cout<<"   provide only one name if the run is in a single root file, "<<endl;
+		cout<<"   provide a serie or list of file names if the run is split into different root files"<<endl;
+	        cout<<"   example: -f file1.root (file2.root file3.root) or -l list.txt (list.txt = file1.root file2.root...)"<<endl;
 		
 		cout<<"then provide the list of files txt or the root file(s) names"<<endl;
 
@@ -42,20 +45,20 @@ int main (int argc, char **argv){
 	// will add one string
 
 	string process=argv[1];
-	string det=argv[2];
-	string polar=argv[3];
-	string test=argv[4];
+	string what=argv[2];
+	string target=argv[3];
+	int runID=atoi(argv[4]);	
+	string test=argv[5];
 	vector <string> filesarg;
 	//vector <string> filesarg_assoc;
 	string listoffiles;
 	string content="";
 	string files_princ;
-	vector <int> rid;	
 	// Read arguments
 	
 	 if (test=="-l" || test=="-list"){
     
-          listoffiles=argv[5];
+          listoffiles=argv[6];
           ifstream listof;
           listof.open(Form("%s",listoffiles.c_str()));
   
@@ -75,8 +78,8 @@ int main (int argc, char **argv){
             
      } else if (test=="-f" || test=="-files") {
     
-            int nn = 5;
-            for (char **arg=argv+5; *arg; ++arg) {
+            int nn = 6;
+            for (char **arg=argv+6; *arg; ++arg) {
     
                 string check =  string(*arg); 
 				if (check.compare("-end") == 0
@@ -87,34 +90,8 @@ int main (int argc, char **argv){
                 nn++;
             }
             
-            // if want to analyze other files in parallel
-           /* if (argc>5) {
-            	if (argc>nn ){
-					string check2=string(argv[nn]);
-					nn++;
-					if (check2.compare("-f") == 0) {
-							for (char **arg=argv+nn; *arg; ++arg) {
-									string check3 =  string(*arg);
-									if (check3 == check3){
-											if (check3.compare("-f") == 0
-													|| check3.compare("-ff") == 0
-													|| check3.compare("-end") == 0
-													) break;
-											files_princ.push_back(*arg);
-											nn++;
-									} else break ;
-							}
-					}
-                }
-            }
-            if (files_princ.size()>0) cout << "list of file analyzed: " <<endl;
-            for (int kk=0;kk<files_princ.size();kk++){
-            	cout<< ", "<<files_princ[kk] ;
-            }
-            */
             if (filesarg.size()>0) cout << "list of file analyzed: " <<endl;
             for (int kk=0;kk<filesarg.size();kk++){
-		rid.push_back(kk);
             	cout<< ", "<<filesarg[kk] ;
             }
      }
@@ -126,23 +103,23 @@ int main (int argc, char **argv){
 	
 	// Process the code
 	cout<<"\n Start processing analyzis \n"<<endl;
-	cout<<"Parameters: \n what: "<<det<<" \n process: "<<process<<endl;
+	cout<<"Run number: "<<runID<<endl;
+	cout<<"Parameters: \n what to do: "<<what<<" \n process: "<<process<<" \n target: "<<target<<endl;
 	
 	
-	if (process.compare("hallc")==0) {
-		cout<<"Analyze raw simulations"<<endl;
-		ReadHallCData RDD;//(filesarg); //[0]);
+	if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0) {
+		cout<<"Analyze hallc coin reco data"<<endl;
+		ReadHallCData RDD;
 		
-		if (det.compare("real")==0){
-			//RDD.InitHistos(); 
+		if (what.compare("ana")==0 || what.compare("reduce")==0){
+			
 			cout<<">> start loop"<<endl;
 			RDD.InitHist();
-			RDD.Loop(filesarg, rid) ;
-			RDD.DrawHist();
+			RDD.Loop(filesarg, runID, process, what, target) ;
+			if (what.compare("ana")==0) RDD.DrawHist();
 			RDD.DeleteHist();
 			cout<<">> no more options"<<endl;
 		}
-	//} else if (process.compare("rec")==0) {
 	
 	}
 

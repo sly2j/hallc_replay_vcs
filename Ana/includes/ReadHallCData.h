@@ -45,31 +45,29 @@
 using namespace std;
 
 class ReadHallCData {
-public :
-   ReadHallCData(); //(TTree *tree=0);
+
+   private: 
+   
+   virtual Int_t GetEntry(Long64_t entry);
+   virtual Long64_t LoadTree(Long64_t entry);
+   virtual Bool_t Notify();
+   Int_t fCurrent; 
+   int InitValues();
+   int InitBranch();     
+
+   public :
+
+   ReadHallCData();
    ReadHallCData  ( vector <string> files );
    virtual ~ReadHallCData();
-   //virtual Int_t    Cut(Long64_t entry);
-   virtual Int_t    GetEntry(Long64_t entry);
-   virtual Long64_t LoadTree(Long64_t entry);
-   int Init(); //(TTree *tree);
-   int InitValues();
-   int InitBranch();     //Chain(TChain *tree, string process, string data);
-   virtual void  Loop (vector <string> vector_name, vector <int> run_index); //, string process, string data, int kin, bool list, int list_index);
- //  void     InitHist(int kin,string process);
- //  void     DeleteHist();
- //  void     DrawHist(string data, string process, int kin);
- //  void     DrawHistCombi(int combi);
-   virtual Bool_t   Notify();
-   TChain *iChain;
-   //TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-   Int_t           fCurrent; //!current Tree number in a TChain
+   int Init(); 
+   virtual void Loop (vector <string> vector_name, int runID, string  process, string what, string target); 
    int InitHist();
    int DeleteHist();
    int DrawHist();
 
-
-
+   TChain *iChain;
+   
    // genereric variables	
    int entry; int test;
      
