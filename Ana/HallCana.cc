@@ -1,7 +1,6 @@
 /*
 Main for Hall C real data analysis
 Created July 5th, 2019
-Author: Marie Boer
 */
 
 #include <iostream>
@@ -38,6 +37,10 @@ int main (int argc, char **argv){
 		return 111;
 	}
 
+	// need to change entry format. run index as an entry, prefix independent. same for all files. 
+	// enable reading list. 
+	// will add one string
+
 	string process=argv[1];
 	string det=argv[2];
 	string polar=argv[3];
@@ -47,7 +50,7 @@ int main (int argc, char **argv){
 	string listoffiles;
 	string content="";
 	string files_princ;
-	
+	vector <int> rid;	
 	// Read arguments
 	
 	 if (test=="-l" || test=="-list"){
@@ -111,6 +114,7 @@ int main (int argc, char **argv){
             */
             if (filesarg.size()>0) cout << "list of file analyzed: " <<endl;
             for (int kk=0;kk<filesarg.size();kk++){
+		rid.push_back(kk);
             	cout<< ", "<<filesarg[kk] ;
             }
      }
@@ -133,7 +137,7 @@ int main (int argc, char **argv){
 			//RDD.InitHistos(); 
 			cout<<">> start loop"<<endl;
 			RDD.InitHist();
-			RDD.Loop(filesarg) ;
+			RDD.Loop(filesarg, rid) ;
 			RDD.DrawHist();
 			RDD.DeleteHist();
 			cout<<">> no more options"<<endl;
