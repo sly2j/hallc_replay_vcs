@@ -71,9 +71,58 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	HallCTree->Branch("Phi_data", &Phi_data,"Phi_data/F");
 	HallCTree->Branch("beta_electron", &beta_electron, "beta_electron/F");
 	HallCTree->Branch("beta_proton", &beta_proton, "beta_proton/F");
+	HallCTree->Branch("Eb", &Eb, "Eb/F");
+	HallCTree->Branch("targetmass", &targetmass, "targetmass/F");
+	HallCTree->Branch("HMS_p_central", &HMS_p_central, "HMS_p_central/F");
+	HallCTree->Branch("SHMS_p_central", &SHMS_p_central, "SHMS_p_central/F");
+	HallCTree->Branch("HMS_th_central", &HMS_th_central, "HMS_th_central/F");
+	HallCTree->Branch("SHMS_th_central", &SHMS_th_central, "SHMS_th_central/F");
+	HallCTree->Branch("HMS_run_l", &HMS_run_l, "HMS_run_l/F");
+	HallCTree->Branch("SHMS_run_l", &SHMS_run_l, "SHMS_run_l/F");
+	HallCTree->Branch("HMS_B2_cur", &HMS_B2_cur, "HMS_B2_cur/F");
+	HallCTree->Branch("SHMS_B2_cur", &SHMS_B2_cur, "SHMS_B2_cur/F");
+	HallCTree->Branch("HMS_B4_cut", &HMS_B4_cut, "HMS_B4_cut/F");
+	HallCTree->Branch("SHMS_B4_cut", &SHMS_B4_cut, "SHMS_B4_cut/F");
+	HallCTree->Branch("HMS_B2_cur_cut", &HMS_B2_cur_cut, "HMS_B2_cur_cut/F");
+	HallCTree->Branch("SHMS_B2_cur_cut", &SHMS_B2_cur_cut, "SHMS_B2_cur_cut/F");
+	HallCTree->Branch("HMS_live", &HMS_live, "HMS_live/F");
+	HallCTree->Branch("SHMS_live", &SHMS_live, "SHMS_live/F");
+	HallCTree->Branch("HMS34rates", &HMS34rates, "HMS34rates/F");
+	HallCTree->Branch("SHMS34rates", &SHMS34rates, "SHMS34rates/F");
+	HallCTree->Branch("HMS_ST", &HMS_ST, "HMS_ST/F");
+	HallCTree->Branch("SHMS_ST", &SHMS_ST, "SHMS_ST/F");
+	HallCTree->Branch("C_T", &C_T, "C_T/F");
+	HallCTree->Branch("All_T", &All_T, "All_T/F");
+	HallCTree->Branch("HMS_E_eff", &HMS_E_eff, "HMS_E_eff/F");
+	HallCTree->Branch("HMS_H_eff", &HMS_H_eff, "HMS_H_eff/F");
+	HallCTree->Branch("SHMS_E_eff", &SHMS_E_eff, "SHMS_E_eff/F");
+	HallCTree->Branch("SHMS_H_eff", &SHMS_H_eff, "SHMS_H_eff/F");
+	//HallCTree->Branch("", &, "/F");
+	//HallCTree->Branch("", &, "/F");
 
-
-	//float beamE = 4.55;
+	runindex=runID;
+	test = FillSingleRunRunInfos(process, runID, Eb, targetmass, HMS_p_central, SHMS_p_central, HMS_th_central, SHMS_th_central, HMS_run_l, SHMS_run_l, 
+				     HMS_B2_cur, SHMS_B2_cur, HMS_B4_cut, SHMS_B4_cut, HMS_B2_cur_cut, SHMS_B2_cur_cut, HMS_live, SHMS_live);
+	if (!test){ cout<<"cannot read run information from replay"<<endl; return ; }
+	cout<<"*** database run information:"<<endl;
+	cout<<"run ID: "<<runID<<endl;
+	cout<<"beam E= "<<Eb<<" target mass = "<<targetmass<<endl;
+	cout<<"HMS p central "<<HMS_p_central<<" SHMS p central "<<SHMS_p_central<<" HMS th central: "<<HMS_th_central<<" SHMS th central "<<SHMS_th_central<<endl;
+	cout<<"HMS / SHMS run lenght = "<<HMS_run_l<<" "<<SHMS_run_l<<endl;
+	cout<<"HMS / SHMS B2 current = "<<HMS_B2_cur<<" "<<SHMS_B2_cur<<" HMS / SHMS B2 current after B4 cut :"<<HMS_B2_cur_cut<<" "<<SHMS_B2_cur_cut<<endl;
+	cout<<"cut on B4 HMS/SHMS = "<<HMS_B4_cut<<" "<<SHMS_B4_cut<<endl;
+	cout<<"HMS live time = "<<HMS_live <<" SHMS live time = "<<SHMS_live<<endl;
+	test = FillSingleRunTriggerInfos(process, runID, HMS34rates, SHMS34rates, HMS_ST, SHMS_ST, C_T, All_T);
+	if (!test){ cout<<"cannot read trigger information from replay"<<endl; return ; }
+	cout<<"*** database trigger info:"<<endl;
+	cout<<"HMS / SHMS 3/4 trigger rates = "<<HMS34rates<<" "<< SHMS34rates<<endl;
+        cout<<"HMS / SHMS single trigger rates = "<<HMS_ST<<" "<<SHMS_ST<<endl;
+        cout<<"coincidence trigger rates = "<<C_T<<" All triggers "<<All_T<<endl;
+	test = FillSingleRunEffInfos(process, runID, HMS_E_eff, HMS_H_eff, SHMS_E_eff, SHMS_H_eff);
+	if (!test){ cout<<"cannot read efficiency information from replay"<<endl; return ; }
+	cout<<"*** database efficiency information from replay"<<endl;
+	cout<<"HMS / SHMS electron efficiency= "<<HMS_E_eff<<" "<<SHMS_E_eff<<endl;
+	cout<<"HMS / SHMS hadron efficiency= "<<HMS_H_eff<<" "<<SHMS_H_eff<<"\n"<<endl;
 	cout<<"Start loop over entries"<<endl;
 
 

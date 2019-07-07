@@ -42,6 +42,7 @@
  #include "Math/FitMethodFunction.h"
 #include <TRandom3.h>
 #include "Utils.h"
+#include "ReadTextFiles.h"
 using namespace std;
 
 class ReadHallCData {
@@ -69,8 +70,15 @@ class ReadHallCData {
    TChain *iChain;
    
    // genereric variables	
-   int entry; int test;
-     
+   int entry, test;
+   
+   // input variables / database
+   float Eb, targetmass, HMS_p_central, SHMS_p_central, HMS_th_central, SHMS_th_central;
+   float HMS_B2_cur, SHMS_B2_cur, HMS_B4_cut, SHMS_B4_cut, HMS_B2_cur_cut, SHMS_B2_cur_cut, HMS_live, SHMS_live; 
+   float HMS34rates, SHMS34rates, HMS_ST, SHMS_ST, C_T; 
+   float HMS_E_eff, HMS_H_eff, SHMS_E_eff, SHMS_H_eff; 
+   float HMS_run_l, SHMS_run_l, All_T;
+
    // for tree out
    int runindex;
    float ALV_el_out_data[4]; 
@@ -82,6 +90,8 @@ class ReadHallCData {
    float Q2_data, epsilon_data, Xbj_data, CosThCM_data, ThCM_data, mt_data, nu_data, W_data, Phi_data; 
    float beta_proton, beta_electron;
    float Q2_kinmod, epsilon_kinmod, Xbj_kinmod, mt_kinmod, W_kinmod, nu_kinmod;
+
+   // only in the code
    TLorentzVector LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
 
    // histograms
