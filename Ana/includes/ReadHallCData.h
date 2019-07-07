@@ -41,6 +41,7 @@
 #include "Math/IFunction.h"
  #include "Math/FitMethodFunction.h"
 #include <TRandom3.h>
+#include "Utils.h"
 using namespace std;
 
 class ReadHallCData {
@@ -54,7 +55,7 @@ public :
    int Init(); //(TTree *tree);
    int InitValues();
    int InitBranch();     //Chain(TChain *tree, string process, string data);
-   virtual void  Loop (vector <string> vector_name); //, string process, string data, int kin, bool list, int list_index);
+   virtual void  Loop (vector <string> vector_name, vector <int> run_index); //, string process, string data, int kin, bool list, int list_index);
  //  void     InitHist(int kin,string process);
  //  void     DeleteHist();
  //  void     DrawHist(string data, string process, int kin);
@@ -71,26 +72,28 @@ public :
 
    // genereric variables	
    int entry; int test;
-
      
    // for tree out
+   int runindex;
    float ALV_el_out_data[4]; 
    float ALV_gamma_out_data[4]; 
    float ALV_proton_out_data[4]; 
    float ALV_el_in_data[4]; 
    float ALV_proton_in_data[4]; 
    float M2miss_data, Mmiss_data, Emiss_data, PTmiss_data, PT2miss_data, Pmiss_ref_data, Thmiss_ref_data; 
-   float Q2_data, epsilon_data, Xbj_data, CosThCM_data, ThCM_data, mt_data, W_data, Phi_data; 
+   float Q2_data, epsilon_data, Xbj_data, CosThCM_data, ThCM_data, mt_data, nu_data, W_data, Phi_data; 
+   float beta_proton, beta_electron;
+   float Q2_kinmod, epsilon_kinmod, Xbj_kinmod, mt_kinmod, W_kinmod, nu_kinmod;
    TLorentzVector LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
 
    // histograms
-   TH1F *h_CTime_epCoinTime_ROC1[3], *h_CTime_epCoinTime_ROC2[3], *h_CTime_epCoinTime_TRIG1[3], *h_CTime_epCoinTime_TRIG2[3];
+   TH1F *h_CTime_epCoinTime_ROC1[10], *h_CTime_epCoinTime_ROC2[10], *h_CTime_epCoinTime_TRIG1[10], *h_CTime_epCoinTime_TRIG2[10];
    TH1F *h_ebeam, *h_pzbeam;
-   TH1F *h_Pmom[3], *h_elmom[3], *h_gmom[3];
-   TH1F *h_Mmiss[3], *h_M2miss[3], *h_Emiss[3], *h_PTmiss[3], *h_PT2miss[3], *h_Pmiss_ref[3], *h_Thmiss_ref[3];
-   TH1F *h_Q2[3], *h_epsilon[3], *h_Xbj[3], *h_CosThCM[3], *h_ThCM[3], *h_mt[3], *h_W[3], *h_Phi[3]; 
-   TH2F *h2_pxpybeam, *h2_Pemom[3], *h2_elemom[3], *h2_gemom[3];
-
+   TH1F *h_Pmom[10], *h_elmom[10], *h_gmom[10];
+   TH1F *h_Mmiss[10], *h_M2miss[10], *h_Emiss[10], *h_PTmiss[10], *h_PT2miss[10], *h_Pmiss_ref[10], *h_Thmiss_ref[10];
+   TH1F *h_Q2[10], *h_epsilon[10], *h_Xbj[10], *h_CosThCM[10], *h_ThCM[10], *h_mt[10], *h_W[10], *h_Phi[10], *h_nu[10]; 
+   TH2F *h2_pxpybeam, *h2_Pemom[10], *h2_elemom[10], *h2_gemom[10];
+   TH2F *h2_elebeta[10], *h2_Pebeta[10], *h2_COIN_P_beta[10], *h2_COIN_H_beta[10];
    // for tree in  
    double H_gtr_xptar                ;
    double H_gtr_yptar                ;

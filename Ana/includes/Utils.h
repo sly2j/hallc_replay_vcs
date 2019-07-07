@@ -10,6 +10,7 @@
 #include <TGraph.h>
 #include <TH1.h>
 #include <TAxis.h>
+#include <TLorentzVector.h>
 
 void Line(TH1* h1,Double_t ordonnee);
 float SetBins(double var,  float varbins[] , const int maxvarbins); 
@@ -19,9 +20,7 @@ float SetBins2D(double var1, double var2, float varbins[][2][2], const int maxva
 double Random_Expo(double lambda); // give a random number with an exponential distribution
 void degtorad(double &Adeg);
 void radtodeg(double &Arad);
-float BeamProfileRescale_bmr(float Egam, float Eel, float Emin, float Emax); 
-// luminosity is known and has been integrated from Emin to Emax. 
-// this function rescale constant the E spectra according to bremstrahlung function shape, for initial Eel electron energy (experiment using radiator providing bremstrahlung photon with no specific cut)
+void FillArray_LV(TLorentzVector LV, float *Ar);
 #endif
 
 
