@@ -3,14 +3,124 @@
 using namespace std;
 
 string dummyLine;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool IsBadRun(  int runint, 
-	int * badruntable
+bool IsBadRun(  int runint, int * badruntable
 	){ 
 	
 	//return badruntable[runint];
 	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmass, float &HMS_p_central, float &SHMS_p_central, 
+			  float &HMS_th_central, float &SHMS_th_central, float &HMS_run_l, float &SHMS_run_l, 
+			  float &HMS_B2_cur, float &SHMS_B2_cur, float &HMS_B4_cut, float &SHMS_B4_cut, float &HMS_B2_cur_cut, float &SHMS_B2_cur_cut, 
+			  float &HMS_live, float &SHMS_live){
+
+	float ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm, rt, rn, ro;
+	//printf("\n fill trigger info ...");
+	ifstream infile; 
+        string ff;
+        int jj=0, run=runID;
+
+        ff = Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/singleruninfo/run_info_%d.txt",runID); 	
+	infile.open(ff.c_str());
+	
+	if (!infile) {
+		cout<<"ERROR unable to read file"<<endl;
+		return 0;
+	}
+	//infile>>run>>Eb>> targetmass>> HMS_p_central >> SHMS_p_central >> HMS_th_central >> SHMS_th_central >> HMS_B2_cur>> SHMS_B2_cur>> HMS_B4_cut>> SHMS_B4_cut >> HMS_B2_cur_cut>> SHMS_B2_cur_cut>>HMS_live>> SHMS_live;
+	
+        //if (!(infile >> run)) return 0;
+	infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> rj >> rk >> rl >> rm;
+cout<<"=== "<<run<<" "<<ra<<" "<<rt<<" "<<rb<<" "<<rc<<" "<<endl;
+	Eb = ra; 
+	targetmass = rt; 
+	HMS_p_central = rb; 
+	SHMS_p_central = rc; 
+	HMS_th_central = rd; 
+	SHMS_th_central = re; 
+	SHMS_run_l = rn;
+	HMS_run_l = ro;
+	HMS_B2_cur = rf; 
+	SHMS_B2_cur = rg; 
+	HMS_B4_cut = rh; 
+	SHMS_B4_cut = ri; 
+	HMS_B2_cur_cut = rj; 
+	SHMS_B2_cur_cut = rk;
+        SHMS_live = rl;	
+        HMS_live = rm;	
+        	
+	infile.close();
+	return 1;
+}	
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int FillSingleRunTriggerInfos(string datatype,int runID, float &HMS34rates, float &SHMS34rates, float &HMS_ST, float &SHMS_ST, float &C_T, float &All_T){
+
+	float ra, rb, rc, rd, re, rf;
+	ifstream infile; 
+        string ff;
+        int jj=0, run=runID;
+
+        ff = Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/singleruninfo/trigger_info_%d.txt",runID); 	
+	infile.open(ff.c_str());
+	
+	if (!infile) {
+		cout<<"ERROR unable to read file"<<endl;
+		return 0;
+	}
+
+        //if (!(infile >> run)) return 0;
+	infile >> run >> ra >> rb >> rc >> rd >> re >> rf;  
+	HMS34rates = rb; 
+	SHMS34rates = ra; 
+	HMS_ST = rc; 
+	SHMS_ST = rd; 
+	C_T = re; 
+	All_T = rf;
+	
+	infile.close();
+	return 1;
+	
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int FillSingleRunEffInfos(string datatype,int runID, float &HMS_E_eff, float &HMS_H_eff, float &SHMS_E_eff, float &SHMS_H_eff){
+
+	float ra, rb, rc, rd;
+	ifstream infile; 
+        string ff;
+        int jj=0, run=runID;
+
+        ff = Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/singleruninfo/eff_info_%d.txt",runID); 	
+	infile.open(ff.c_str());
+	
+	if (!infile) {
+		cout<<"ERROR unable to read file"<<endl;
+		return 0;
+	}
+
+        // if (!(infile >> run)) return 0;
+	infile >> run >> ra >> rb >> rc >> rd;  
+	HMS_E_eff = rb; 
+	HMS_H_eff = rd; 
+	SHMS_E_eff = ra; 
+	SHMS_H_eff = rc; 
+	
+	infile.close();
+	return 1;
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,10 +150,10 @@ int FillEffInfos(string datatype,int *runtable,
  
 		jj = GetRunNumList(run, runtable,datatype); 
 		 
-		HMS_E_eff[jj] = ra; 
-		HMS_H_eff[jj] = rb; 
-		SHMS_E_eff[jj] = rc; 
-		SHMS_H_eff[jj] = rd; 
+		HMS_E_eff[jj] = rb; 
+		HMS_H_eff[jj] = rd; 
+		SHMS_E_eff[jj] = ra; 
+		SHMS_H_eff[jj] = rc; 
 	 
 	}
 	
@@ -57,9 +167,9 @@ int FillEffInfos(string datatype,int *runtable,
 
 int FillTriggerInfos(string datatype,int *runtable,
 		    	float (&HMS34rates)[tot_runlist], float (&SHMS34rates)[tot_runlist], 
-			float (&HMS_ST)[tot_runlist], float (&SHMS_ST)[tot_runlist], float (&C_T)[tot_runlist]
+			float (&HMS_ST)[tot_runlist], float (&SHMS_ST)[tot_runlist], float (&C_T)[tot_runlist], float (&All_T)[tot_runlist]
 		){
-	float ra, rb, rc, rd, re;
+	float ra, rb, rc, rd, re, rf;
 	printf("\n fill trigger info ...");
 	ifstream infile; 
         string ff;
@@ -75,15 +185,16 @@ int FillTriggerInfos(string datatype,int *runtable,
 
 	while (infile.good()){
                 if (!(infile >> run)) break;
-		infile >> ra >> rb >> rc >> rd >> re;  
+		infile >> ra >> rb >> rc >> rd >> re >> rf;  
  
 		jj = GetRunNumList(run, runtable,datatype); 
 		 
-		HMS34rates[jj] = ra; 
-		SHMS34rates[jj] = rb; 
+		HMS34rates[jj] = rb; 
+		SHMS34rates[jj] = ra; 
 		HMS_ST[jj] = rc; 
 		SHMS_ST[jj] = rd; 
 		C_T[jj] = re; 
+		All_T[jj] = rf;
 	 
 	}
 	
@@ -98,15 +209,16 @@ int FillTriggerInfos(string datatype,int *runtable,
   
 int FillRunInfos( string datatype, 
 	int *runtable, 
-	float (&Eb)[tot_runlist], float (&HMS_p_central)[tot_runlist], 
-	float (&SHMS_p_central)[tot_runlist], float (&HMS_th_central)[tot_runlist], float (&SHMS_th_central)[tot_runlist],
+	float (&Eb)[tot_runlist], float (&targetmass)[tot_runlist], 
+	float (&HMS_p_central)[tot_runlist], float (&SHMS_p_central)[tot_runlist], float (&HMS_th_central)[tot_runlist], float (&SHMS_th_central)[tot_runlist],
+	float (&HMS_run_l)[tot_runlist], float (&SHMS_run_l)[tot_runlist], 
 	float (&HMS_B2_cur)[tot_runlist], float (&SHMS_B2_cur)[tot_runlist], 
 	float (&HMS_B4_cut)[tot_runlist], float (&SHMS_B4_cut)[tot_runlist], float (&HMS_B2_cur_cut)[tot_runlist], float (&SHMS_B2_cur_cut)[tot_runlist],
 	float (&HMS_live)[tot_runlist], float (&SHMS_live)[tot_runlist]
 	){
 	
 	int run ;
-	float ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm;
+	float ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm, rt, rn, ro;
 
         printf("Start to fill run tables ...");
         
@@ -115,7 +227,6 @@ int FillRunInfos( string datatype,
         int jj=0;
 
 	ff = Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/mergedruninfo/run_mergedruninfo.txt");	 
-	//	else if (datatype.compare("pAl") == 0) ff = Form("/home/marie/Travail/RHIC/PHENIX/DY_1/DBinfos/runinfo2015pAl.dat");	 
 	
 	infile.open(ff.c_str());
 	
@@ -124,28 +235,28 @@ int FillRunInfos( string datatype,
 		return 0;
 	}
 
-	//getline(infile , dummyLine);
-	//infile.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-
 	while (infile.good()){
                 if (!(infile >> run)) break;
-		infile >> ra >> rb >> rc >> rd >> re >> rf >> rg >> rh >> ri >> rj >> rk >> rl >> rm;  
+		infile >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> rj >> rk >> rl >> rm;  
  
 		jj = GetRunNumList(run, runtable,datatype); 
 		 
 		Eb[jj] = ra; 
+		targetmass[jj] = rt; 
 		HMS_p_central[jj] = rb; 
 		SHMS_p_central[jj] = rc; 
 		HMS_th_central[jj] = rd; 
-		SHMS_th_central[jj] = re; 
+		SHMS_th_central[jj] = re;
+	        HMS_run_l[jj] = ro;
+		SHMS_run_l[jj] = rn;	
 		HMS_B2_cur[jj] = rf; 
 		SHMS_B2_cur[jj] = rg; 
 		HMS_B4_cut[jj] = rh; 
 		SHMS_B4_cut[jj] = ri; 
 		HMS_B2_cur_cut[jj] = rj; 
 		HMS_B2_cur_cut[jj] = rk;
-	        HMS_live[jj] = rl;	
-	        SHMS_live[jj] = rm;	
+	        HMS_live[jj] = rm;	
+	        SHMS_live[jj] = rl;	
 	 
 	}
 	
