@@ -4,12 +4,12 @@ echo "arguments: 1) run number 2) events"
 
 set dir="/home/cdaq/mboer/hallc_replay_vcs/REPORT_OUTPUT/COIN/PRODUCTION/"
 set file="replay_coin_production"
-set outfile1="singleruninfo/run_info_${1}.txt"
-set outfile2="singleruninfo/eff_info_${1}.txt"
-set outfile3="singleruninfo/trigger_info_${1}.txt"
-rm $outfile1 $outfile2 $outfile3
+set loc="/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/singleruninfo"
+set outfile1="${loc}/run_info_${1}.txt"
+set outfile2="${loc}/eff_info_${1}.txt"
+set outfile3="${loc}/trigger_info_${1}.txt"
+rm -f $outfile1 $outfile2 $outfile3
 touch $outfile1 $outfile2 $outfile3
-
 
 echo "run number :"
 grep 'Run #' ${dir}/${file}_${1}_${2}.report | awk '{printf $3 " "}' >> $outfile1
