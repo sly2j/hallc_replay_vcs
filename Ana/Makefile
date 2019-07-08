@@ -44,9 +44,9 @@ HallCana.o:$(ANA_H) HallCana.cc
 
 HallCana:  HallCana.o $(ANA_O) $(ANAc_O) $(ANAC_O)
 	@echo "Link fit"
-	@echo g++ $(FLAGS) $(OPTM)  -I $(ROOTINC) -I lib/ -I includes/ -o HallCana $(ANA_O) $(ANAc_O) $(ANAC_O) HallCana.o $(ROOTLIB)
+	@echo g++ $(FLAGS) $(OPTM)  -I $(ROOTINC) -I lib/ -I includes/ -o HallCana $(ANA_O) $(ANAc_O) $(ANAC_O) HallCana.o $(ROOTLIB) -lSpectrum
 
-	@g++ $(FLAGS) $(OPTM)  -I $(ROOTINC) -I lib/ -I includes/ -o HallCana $(ANA_O) $(ANAc_O) $(ANAC_O) HallCana.o $(ROOTLIB)
+	@g++ $(FLAGS) $(OPTM)  -I $(ROOTINC) -I lib/ -I includes/ -o HallCana $(ANA_O) $(ANAc_O) $(ANAC_O) HallCana.o $(ROOTLIB) -lSpectrum
 	@echo "Compilation done..."
 
 
