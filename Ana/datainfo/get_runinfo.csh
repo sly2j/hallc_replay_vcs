@@ -23,6 +23,7 @@ grep 'HMS  Run Length'  ${dir}/${file}_${1}_${2}.report | awk '{printf $5 " "}' 
 grep 'SHMS Run Length'  ${dir}/${file}_${1}_${2}.report | awk '{printf $5 " "}' >> $outfile1
 grep 'HMS BCM2 Current:' ${dir}/${file}_${1}_${2}.report | awk '{printf $4 " "}' >> $outfile1
 grep 'Cut on BCM4 current of' ${dir}/${file}_${1}_${2}.report | awk '{printf $6 " " }' >> $outfile1
+grep 'Cut on BCM4 current of' ${dir}/${file}_${1}_${2}.report | awk '{printf $12 " "}' >> $outfile1
 grep 'HMS BCM2 Beam Cut Current:' ${dir}/${file}_${1}_${2}.report | awk '{printf $6 " "}' >> $outfile1
 grep 'HMS Computer Live Time' ${dir}/${file}_${1}_${2}.report | awk '{printf $6 " "}' >> $outfile1
 grep 'HMS 3/4 Trigger Rate' ${dir}/${file}_${1}_${2}.report | awk '{printf $6 " "}' >> $outfile3
