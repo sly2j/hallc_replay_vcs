@@ -41,6 +41,8 @@
 #include "Math/IFunction.h"
  #include "Math/FitMethodFunction.h"
 #include <TRandom3.h>
+#include <TSpectrum.h>
+#include <TVirtualFitter.h>
 #include "Utils.h"
 #include "ReadTextFiles.h"
 using namespace std;
@@ -65,7 +67,7 @@ class ReadHallCData {
    virtual void Loop (vector <string> vector_name, int runID, string  process, string what, string target); 
    int InitHist();
    int DeleteHist();
-   int DrawHist();
+   int DrawHist(int);
 
    TChain *iChain;
    
@@ -77,7 +79,7 @@ class ReadHallCData {
    float HMS_B2_cur, SHMS_B2_cur, HMS_B4_cut, SHMS_B4_cut, HMS_B2_cur_cut, SHMS_B2_cur_cut, HMS_live, SHMS_live; 
    float HMS34rates, SHMS34rates, HMS_ST, SHMS_ST, C_T; 
    float HMS_E_eff, HMS_H_eff, SHMS_E_eff, SHMS_H_eff; 
-   float HMS_run_l, SHMS_run_l, All_T;
+   float HMS_run_l, SHMS_run_l, All_T, lumiexp_HMS, lumiexp_SHMS;
 
    // for tree out
    int runindex;
@@ -90,9 +92,12 @@ class ReadHallCData {
    float Q2_data, epsilon_data, Xbj_data, CosThCM_data, ThCM_data, mt_data, nu_data, W_data, Phi_data; 
    float beta_proton, beta_electron;
    float Q2_kinmod, epsilon_kinmod, Xbj_kinmod, mt_kinmod, W_kinmod, nu_kinmod;
+   float HMS_act_time, SHMS_act_time;
 
    // only in the code
-   TLorentzVector LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
+   TLorentzVector LV_virtual, LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
+   TVector3 V_Normal_Mu, V_Normal_Final;
+   float Egout_CMeP, PinCM;
 
    // histograms
    TH1F *h_CTime_epCoinTime_ROC1[10], *h_CTime_epCoinTime_ROC2[10], *h_CTime_epCoinTime_TRIG1[10], *h_CTime_epCoinTime_TRIG2[10];
@@ -102,6 +107,9 @@ class ReadHallCData {
    TH1F *h_Q2[10], *h_epsilon[10], *h_Xbj[10], *h_CosThCM[10], *h_ThCM[10], *h_mt[10], *h_W[10], *h_Phi[10], *h_nu[10]; 
    TH2F *h2_pxpybeam, *h2_Pemom[10], *h2_elemom[10], *h2_gemom[10];
    TH2F *h2_elebeta[10], *h2_Pebeta[10], *h2_COIN_P_beta[10], *h2_COIN_H_beta[10];
+   TH2F *h2_Q2W[10], *h2_XQ2[10], *h2_Q2mt[10], *h2_ThCMPhi[10], *h2_nuep[10], *h2_Q2Th[10], *h2_WTh[10], *h2_mtTh[10];
+   TH2F *h2_M2miss_CT1[10], *h2_M2miss_CT2[10];
+
    // for tree in  
    double H_gtr_xptar                ;
    double H_gtr_yptar                ;

@@ -5,14 +5,20 @@ using namespace std;
 // move to constants parameter file
 const double m_el=510.998910e-6;
 const double PI=3.141592, M_Neutron=0.939566, M_Proton=0.9382723;
+const float rhoH = 0.071, MH = 1., NA = 6.02e23, Ce = 1.6e-19;
+
 
 // move to parameter / cuts files
+
+// target lenght
+float LL = 10; // cm
 
 // timing cuts
 float trig_time_cut_low = 20;
 float trig_time_cut_up = 90;
 float roc_time_cut_low = 20;
 float roc_time_cut_up = 65;
+float time_shift = 43.5;
 
 // fiducial cuts
 float hdp_low = -8.0, hdp_up= +8.0, sdp_low=-10.0, sdp_up=+20.0;
@@ -97,33 +103,47 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	HallCTree->Branch("HMS_H_eff", &HMS_H_eff, "HMS_H_eff/F");
 	HallCTree->Branch("SHMS_E_eff", &SHMS_E_eff, "SHMS_E_eff/F");
 	HallCTree->Branch("SHMS_H_eff", &SHMS_H_eff, "SHMS_H_eff/F");
+	HallCTree->Branch("HMS_act_time", &HMS_act_time, "HMS_act_time/F");
+	HallCTree->Branch("SHMS_act_time", &SHMS_act_time, "SHMS_act_time/F");
+	HallCTree->Branch("lumiexp_HMS", &lumiexp_HMS, "lumiexp_HMS/F");
+	HallCTree->Branch("lumiexp_SHMS", &lumiexp_SHMS, "lumiexp_SHMS/F");
 	//HallCTree->Branch("", &, "/F");
 	//HallCTree->Branch("", &, "/F");
 
 	runindex=runID;
 	test = FillSingleRunRunInfos(process, runID, Eb, targetmass, HMS_p_central, SHMS_p_central, HMS_th_central, SHMS_th_central, HMS_run_l, SHMS_run_l, 
-				     HMS_B2_cur, SHMS_B2_cur, HMS_B4_cut, SHMS_B4_cut, HMS_B2_cur_cut, SHMS_B2_cur_cut, HMS_live, SHMS_live);
+				     HMS_B2_cur, SHMS_B2_cur, HMS_B4_cut, SHMS_B4_cut, HMS_act_time, SHMS_act_time, HMS_B2_cur_cut, SHMS_B2_cur_cut, HMS_live, SHMS_live);
 	if (!test){ cout<<"cannot read run information from replay"<<endl; return ; }
-	cout<<"*** database run information:"<<endl;
+	
+	cout<<"\n*** database run information:"<<endl;
 	cout<<"run ID: "<<runID<<endl;
 	cout<<"beam E= "<<Eb<<" target mass = "<<targetmass<<endl;
 	cout<<"HMS p central "<<HMS_p_central<<" SHMS p central "<<SHMS_p_central<<" HMS th central: "<<HMS_th_central<<" SHMS th central "<<SHMS_th_central<<endl;
 	cout<<"HMS / SHMS run lenght = "<<HMS_run_l<<" "<<SHMS_run_l<<endl;
 	cout<<"HMS / SHMS B2 current = "<<HMS_B2_cur<<" "<<SHMS_B2_cur<<" HMS / SHMS B2 current after B4 cut :"<<HMS_B2_cur_cut<<" "<<SHMS_B2_cur_cut<<endl;
 	cout<<"cut on B4 HMS/SHMS = "<<HMS_B4_cut<<" "<<SHMS_B4_cut<<endl;
+	cout<<"Actual time HMS / SHMS above cut= "<<HMS_act_time<<" "<< SHMS_act_time<<endl;
 	cout<<"HMS live time = "<<HMS_live <<" SHMS live time = "<<SHMS_live<<endl;
+	
 	test = FillSingleRunTriggerInfos(process, runID, HMS34rates, SHMS34rates, HMS_ST, SHMS_ST, C_T, All_T);
 	if (!test){ cout<<"cannot read trigger information from replay"<<endl; return ; }
-	cout<<"*** database trigger info:"<<endl;
+	
+	cout<<"\n*** database trigger info:"<<endl;
 	cout<<"HMS / SHMS 3/4 trigger rates = "<<HMS34rates<<" "<< SHMS34rates<<endl;
         cout<<"HMS / SHMS single trigger rates = "<<HMS_ST<<" "<<SHMS_ST<<endl;
         cout<<"coincidence trigger rates = "<<C_T<<" All triggers "<<All_T<<endl;
+	
 	test = FillSingleRunEffInfos(process, runID, HMS_E_eff, HMS_H_eff, SHMS_E_eff, SHMS_H_eff);
 	if (!test){ cout<<"cannot read efficiency information from replay"<<endl; return ; }
-	cout<<"*** database efficiency information from replay"<<endl;
+	
+	cout<<"\n*** database efficiency information from replay"<<endl;
 	cout<<"HMS / SHMS electron efficiency= "<<HMS_E_eff<<" "<<SHMS_E_eff<<endl;
 	cout<<"HMS / SHMS hadron efficiency= "<<HMS_H_eff<<" "<<SHMS_H_eff<<"\n"<<endl;
 	cout<<"Start loop over entries"<<endl;
+
+	lumiexp_HMS = HMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * HMS_act_time * 1000;  
+	lumiexp_SHMS = SHMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * SHMS_act_time * 1000;
+        cout<<"\n*** Measured luminosity HMS / SHMS = "<<lumiexp_HMS<< " "<<lumiexp_SHMS<< " nb"<<endl;  
 
 
         for (Int_t i=0; i<iChain -> GetEntries(); i++) {
@@ -133,10 +153,10 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		//if (i==10) return; // temporary
                 if (i==0) cerr<<"enter loop"<<endl;
 		
-		h_CTime_epCoinTime_ROC1[0]->Fill(CTime_epCoinTime_ROC1);
-		h_CTime_epCoinTime_ROC2[0]->Fill(CTime_epCoinTime_ROC2);
-		h_CTime_epCoinTime_TRIG1[0]->Fill(CTime_epCoinTime_TRIG1);
-		h_CTime_epCoinTime_TRIG2[0]->Fill(CTime_epCoinTime_TRIG4);
+		h_CTime_epCoinTime_ROC1[0]->Fill(CTime_epCoinTime_ROC1-time_shift);
+		h_CTime_epCoinTime_ROC2[0]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_TRIG1[0]->Fill(CTime_epCoinTime_TRIG1-time_shift);
+		h_CTime_epCoinTime_TRIG2[0]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 		
 		// acceptance fiducial cuts
 		if (H_gtr_dp<hdp_low || H_gtr_dp>hdp_up) continue; // hms fiducial cut
@@ -145,13 +165,13 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		
 		h2_Pebeta[1]->Fill(H_gtr_p, H_gtr_beta);
 		h2_elebeta[1]->Fill(P_gtr_p, P_gtr_beta);
-		h2_COIN_H_beta[1]->Fill(CTime_epCoinTime_ROC2, H_gtr_beta);
-		h2_COIN_P_beta[1]->Fill(CTime_epCoinTime_ROC1, P_gtr_beta);
+		h2_COIN_H_beta[1]->Fill(CTime_epCoinTime_ROC2-time_shift, H_gtr_beta);
+		h2_COIN_P_beta[1]->Fill(CTime_epCoinTime_ROC1-time_shift, P_gtr_beta);
 		
-		h_CTime_epCoinTime_ROC1[1]->Fill(CTime_epCoinTime_ROC1);
-		h_CTime_epCoinTime_ROC2[1]->Fill(CTime_epCoinTime_ROC2);
-		h_CTime_epCoinTime_TRIG1[1]->Fill(CTime_epCoinTime_TRIG1);
-		h_CTime_epCoinTime_TRIG2[1]->Fill(CTime_epCoinTime_TRIG4);
+		h_CTime_epCoinTime_ROC1[1]->Fill(CTime_epCoinTime_ROC1-time_shift);
+		h_CTime_epCoinTime_ROC2[1]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_TRIG1[1]->Fill(CTime_epCoinTime_TRIG1-time_shift);
+		h_CTime_epCoinTime_TRIG2[1]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 
 		// PID cuts
 		if (H_cal_etotnorm<hms_cal_en_cut || H_cer_npeSum<hms_cer_npe_cut) continue; // electron in HMS
@@ -159,15 +179,15 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		if (P_aero_npeSum>shms_aero_npe_cut || P_hgcer_npeSum>shms_hgcer_npe_cut) continue;  // proton in SHMS
 		//if (P_aero_npeSum<shms_aero_npe_cut || P_hgcer_npeSum<shms_hgcer_npe_cut) continue;  // electron in SHMS
 
-		h_CTime_epCoinTime_ROC1[2]->Fill(CTime_epCoinTime_ROC1);
-		h_CTime_epCoinTime_ROC2[2]->Fill(CTime_epCoinTime_ROC2);
-		h_CTime_epCoinTime_TRIG1[2]->Fill(CTime_epCoinTime_TRIG1);
-		h_CTime_epCoinTime_TRIG2[2]->Fill(CTime_epCoinTime_TRIG4);
+		h_CTime_epCoinTime_ROC1[2]->Fill(CTime_epCoinTime_ROC1-time_shift);
+		h_CTime_epCoinTime_ROC2[2]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_TRIG1[2]->Fill(CTime_epCoinTime_TRIG1-time_shift);
+		h_CTime_epCoinTime_TRIG2[2]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 
 		h2_Pebeta[2]->Fill(H_gtr_p, H_gtr_beta);
 		h2_elebeta[2]->Fill(P_gtr_p, P_gtr_beta);
-		h2_COIN_H_beta[2]->Fill(CTime_epCoinTime_ROC2, H_gtr_beta);
-		h2_COIN_P_beta[2]->Fill(CTime_epCoinTime_ROC1, P_gtr_beta);
+		h2_COIN_H_beta[2]->Fill(CTime_epCoinTime_ROC2-time_shift, H_gtr_beta);
+		h2_COIN_P_beta[2]->Fill(CTime_epCoinTime_ROC1-time_shift, P_gtr_beta);
 
 		// timing cuts
 		
@@ -189,11 +209,55 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		Xbj_kinmod = H_kin_primary_x_bj;
 		mt_kinmod = -P_kin_secondary_MandelT; 
 
+		// calculation of kinematics and "missing"
+		//LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2)));  // if e in SHMS
+		//LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_Proton,2)));  // if p in HMS
+		LV_el_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(m_el,2))); // if e in HMS 
+		LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(M_Proton,2))); // if P in SHMS
+		LV_proton_in_data.SetPxPyPzE(0,0,0,M_Proton);
+		LV_el_in_data.SetPxPyPzE(0,0,sqrt(pow(Eb,2)-pow(m_el,2)),Eb);
+		LV_virtual.SetPxPyPzE(-LV_el_out_data.Px()+LV_el_in_data.Px(), -LV_el_out_data.Py()+LV_el_in_data.Py(), 
+				     -LV_el_out_data.Pz()+LV_el_in_data.Pz(), -LV_el_out_data.E()+LV_el_in_data.E());	
+		LV_gamma_out_data.SetPxPyPzE(LV_virtual.Px()-LV_proton_out_data.Px(),LV_virtual.Py()-LV_proton_out_data.Py(),
+					 LV_virtual.Pz()-LV_proton_out_data.Pz(),LV_proton_in_data.E()-LV_proton_out_data.E()+LV_virtual.E() );
 
-		LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2))); 
-		LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_Proton,2))); 
-		
+		Q2_data = -LV_virtual.M2();
+		W_data = (LV_proton_in_data+LV_virtual).M();
+		Xbj_data = Q2_data/(2.*M_Proton*LV_virtual.E());
+		nu_data = LV_virtual.E();
+		mt_data = -(LV_proton_in_data-LV_proton_out_data).M2();
+		epsilon_data = pow(1.+2*(pow(LV_virtual.E() ,2)+Q2_data)/Q2_data*pow(tan(LV_el_out_data.Theta()/2.),2),-1);
 
+
+		M2miss_data= LV_gamma_out_data.M2();
+		Mmiss_data= LV_gamma_out_data.M();
+		PTmiss_data = LV_gamma_out_data.Perp();
+		PT2miss_data = LV_gamma_out_data.Perp2();
+		Emiss_data = LV_gamma_out_data.E(); // put vs ref
+
+
+		if (process.compare("elastic")==0){
+			Phi_data = 0; CosThCM_data=0; ThCM_data=0;
+		} else if (process.compare("vcs")==0 || process.compare("pi0")==0){ // change function for pi0, this assume 0 mass
+			V_Normal_Mu = (LV_el_in_data.Vect().Cross(LV_el_out_data.Vect())).Unit();
+			V_Normal_Final = (LV_virtual.Vect().Cross(LV_proton_out_data.Vect())).Unit();
+			Phi_data = TMath::ACos(V_Normal_Mu * V_Normal_Final);
+			Phi_data = 360.-Phi_data*180./PI;
+			if ( (V_Normal_Mu *LV_gamma_out_data.Vect()) > 0.) Phi_data = Phi_data;
+			else Phi_data = 360.-Phi_data;
+			Egout_CMeP = (pow(W_data, 2)-pow(M_Proton,2))/(2.*W_data);
+			PinCM = M_Proton*LV_virtual.P()/W_data;
+			CosThCM_data = (-mt_data +Q2_data + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*Egout_CMeP); 
+			ThCM_data = acos(CosThCM_data)*180./PI;
+
+			// Emiss_data = LV_gamma_out_data.E()-Eref;
+			// mom_ex_miss = mom_gam_ex[kin]-LV_photon_rec.P();
+			// th_ex_miss = th_gam_ex[kin]-LV_photon_rec.Theta()*180./PI;
+		//} else if (process.compare("pi0")==0){
+		}
+
+
+		// no cut, from kinematic module
 		h_Q2[0]->Fill(Q2_kinmod);
 		h_epsilon[0]->Fill(epsilon_kinmod);
 		h_Xbj[0]->Fill(Xbj_kinmod);
@@ -201,9 +265,49 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		h_nu[0]->Fill(nu_kinmod);
 		h_mt[0]->Fill(mt_kinmod);
 
+		h_Pmom[0]->Fill(LV_proton_out_data.P());
+		h_elmom[0]->Fill(LV_el_out_data.P());
+		h_gmom[0]->Fill(LV_gamma_out_data.P());
 
+		h2_Q2W[0]->Fill(Q2_kinmod, W_kinmod);
+		h2_XQ2[0]->Fill(Xbj_kinmod, Q2_kinmod);
+		h2_Q2mt[0]->Fill(Q2_kinmod, mt_kinmod);
+		h2_nuep[0]->Fill(nu_kinmod,epsilon_kinmod);
+
+		h2_Q2Th[0]->Fill(Q2_kinmod, ThCM_data);
+		h2_WTh[0]->Fill(W_kinmod, ThCM_data);
+		h2_ThCMPhi[0]->Fill(Phi_data, ThCM_data);
+	        h2_mtTh[0]->Fill(mt_kinmod, ThCM_data);
 		
-		//LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data
+		// no cut, from calculations
+		h_Q2[1]->Fill(Q2_data);
+		h_epsilon[1]->Fill(epsilon_data);
+		h_Xbj[1]->Fill(Xbj_data);
+		h_W[1]->Fill(W_data);
+		h_nu[1]->Fill(nu_data);
+		h_mt[1]->Fill(mt_data);
+
+		h2_Q2W[1]->Fill(Q2_data, W_data);
+		h2_XQ2[1]->Fill(Xbj_data, Q2_data);
+		h2_Q2mt[1]->Fill(Q2_data, mt_data);
+		h2_nuep[1]->Fill(nu_data,epsilon_data);
+
+		h2_Q2Th[1]->Fill(Q2_data, ThCM_data);
+		h2_WTh[1]->Fill(W_data, ThCM_data);
+		h2_ThCMPhi[1]->Fill(Phi_data, ThCM_data);
+	        h2_mtTh[1]->Fill(mt_data, ThCM_data);
+
+		h_Mmiss[1]->Fill(Mmiss_data);
+		h_M2miss[1]->Fill(M2miss_data);
+		h_Emiss[1]->Fill(Emiss_data);
+		h_PTmiss[1]->Fill(PTmiss_data);
+		h_PT2miss[1]->Fill(PT2miss_data);
+	        //h_Pmiss_ref[10], *h_Thmiss_ref[10];
+	
+		h2_M2miss_CT1[0]->Fill(CTime_epCoinTime_ROC1-time_shift,M2miss_data);
+		h2_M2miss_CT2[0]->Fill(CTime_epCoinTime_ROC2-time_shift,M2miss_data);
+		
+		
 
 		// fill array
 		FillArray_LV(LV_el_out_data, ALV_el_out_data);
@@ -227,42 +331,53 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 int ReadHallCData::InitHist(){
 
 	h_ebeam = new TH1F("h_ebeam","E beam; E(GeV);events",50,4.5,4.6);
-	h_pzbeam = new TH1F("h_pzbeam","pz beam; pz(GeV);events",50,4.5,4.6);
-	h2_pxpybeam = new TH2F("h2_pxpybeam","py vs px beam; py(GeV);px (GeV)",50,-1,1, 50,-1, 1);
+	h_pzbeam = new TH1F("h_pzbeam","p_{z} beam; p_{z} (GeV);events",50,4.5,4.6);
+	h2_pxpybeam = new TH2F("h2_pxpybeam","p_{y} vs p_{x} beam; p_{y} (GeV);p_{x} (GeV)",50,-1,1, 50,-1, 1);
 
 	for (int i=0; i<10; i++){
 	
-		h_CTime_epCoinTime_ROC1[i] = new TH1F(Form("h_CTime_epCoinTime_ROC1[%d]",i),"coin time roc 1;time;events", 50, 0, 100);
-		h_CTime_epCoinTime_ROC2[i] = new TH1F(Form("h_CTime_epCoinTime_ROC2[%d]",i),"coin time roc 2;time;events", 50, 0, 100);
-		h_CTime_epCoinTime_TRIG1[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG1[%d]",i),"coin time trig 1;time;events", 50, 0, 100);
-		h_CTime_epCoinTime_TRIG2[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG2[%d]",i),"coin time trig 2;time;events", 50, 0, 100);
-		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"proton mom.;p (GeV);events",50,0,2);	
-		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"electron mom.;p (GeV);events",50,0,6);	
-		h_gmom[i] = new TH1F(Form("h_gmom[%d]",i),"missing mom. (g);p (GeV);events",50,-1,1);	
-		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;Emiss (GeV);events",50,-2,2);	
-		h_Mmiss[i] = new TH1F(Form("h_Mmiss[%d]",i),"missing mass;Mmiss (GeV);events",50,-2,2);	
-		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M2miss (GeV2);events",50,-2,2);	
-		h_PTmiss[i] = new TH1F(Form("h_PTmiss[%d]",i),"missing PT;PTmiss (GeV);events",50,0,2);	
-		h_PT2miss[i] = new TH1F(Form("h_PT2miss[%d]",i),"missing PT2;PT2miss (GeV2);events",50,0,2);	
+		h_CTime_epCoinTime_ROC1[i] = new TH1F(Form("h_CTime_epCoinTime_ROC1[%d]",i),"coin time roc 1;time (ns);events", 400, -20, 20);
+		h_CTime_epCoinTime_ROC2[i] = new TH1F(Form("h_CTime_epCoinTime_ROC2[%d]",i),"coin time roc 2;time (ns);events", 400, -20, 20);
+		h_CTime_epCoinTime_TRIG1[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG1[%d]",i),"coin time trig 1;time (ns);events", 400, -20, 20);
+		h_CTime_epCoinTime_TRIG2[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG2[%d]",i),"coin time trig 2;time (ns);events", 400, -20, 20);
+		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"proton mom.;p_{P} (GeV);events",50,0,2);	
+		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"electron mom.;p_{e} (GeV);events",50,0,6);	
+		h_gmom[i] = new TH1F(Form("h_gmom[%d]",i),"missing mom. (g);p_{miss} (GeV);events",50,-1,1);	
+		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;E_{miss} (GeV);events",50,-2,2);	
+		h_Mmiss[i] = new TH1F(Form("h_Mmiss[%d]",i),"missing mass;M_{miss} (GeV);events",50,-2,2);	
+		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M^{2}_{miss} (GeV^{2});events",50,-2,2);	
+		h_PTmiss[i] = new TH1F(Form("h_PTmiss[%d]",i),"missing PT;P_{T,miss} (GeV);events",50,0,2);	
+		h_PT2miss[i] = new TH1F(Form("h_PT2miss[%d]",i),"missing PT2;P_{T,miss}^{2} (GeV^{2});events",50,0,2);	
 		h_Pmiss_ref[i] = new TH1F(Form("h_Pmiss_ref[%d]",i),"missing ref P (GeV);P-ref (GeV);events",50,-2,2);
 		h_Thmiss_ref[i] = new TH1F(Form("h_Thmiss_ref[%d]",i),"missing ref Th (deg);Th-ref (deg);events",50,-2,2);
-		h_Q2[i] = new TH1F(Form("h_Q2[%d]",i),"Q2;Q2 (GeV2);events", 50, -0.1, 1);
-		h_epsilon[i] = new TH1F(Form("h_epsilon[%d]",i),"epsilon;epsilon;events", 50, -0.1, 1);
-		h_Xbj[i] = new TH1F(Form("h_Xbj[%d]",i),"Xbj;Xbj;events", 50, -0.1, 1);
-		h_CosThCM[i] = new TH1F(Form("h_CosThCM[%d]",i),"CosTh CM;CosTh CM;events", 50, -1, 1);
-		h_ThCM[i] = new TH1F(Form("h_ThCM[%d]",i),"Th CM;Th CM (deg);events", 50, 60, 180);
-		h_mt[i] = new TH1F(Form("h_mt[%d]",i),"mt;mt (GeV2);events", 50, 0.2, 1.5);
+		h_Q2[i] = new TH1F(Form("h_Q2[%d]",i),"Q^{2};Q^{2} (GeV^{2});events", 50, -0.1, 1);
+		h_epsilon[i] = new TH1F(Form("h_epsilon[%d]",i),"#epsilon;#epsilon;events", 50, 0, 1);
+		h_Xbj[i] = new TH1F(Form("h_Xbj[%d]",i),"x_{bj};x_{bj};events", 50, -0.1, 1);
+		h_CosThCM[i] = new TH1F(Form("h_CosThCM[%d]",i),"cos(#Theta_{CM});cos(#Theta_{CM});events", 50, -1, 1);
+		h_ThCM[i] = new TH1F(Form("h_ThCM[%d]",i),"#Theta_{CM};#Theta_{CM} (deg.);events", 50, 60, 180);
+		h_mt[i] = new TH1F(Form("h_mt[%d]",i),"-t;-t (GeV^{2});events", 50, 0.2, 1.5);
 		h_W[i] = new TH1F(Form("h_W[%d]",i),"W;W (GeV);events", 50, -0.1, 4);
-		h_nu[i] = new TH1F(Form("h_nu[%d]",i),"nu;#nu (GeV);events", 50, 0, 4.55);
-		h_Phi[i] = new TH1F(Form("h_Phi[%d]",i),"Phi;Phi (deg);events", 50, 0, 360);
+		h_nu[i] = new TH1F(Form("h_nu[%d]",i),"#nu;#nu (GeV);events", 50, 0, 4.55);
+		h_Phi[i] = new TH1F(Form("h_Phi[%d]",i),"#Phi;#Phi (deg.);events", 50, 0, 360);
 
-		h2_Pebeta[i] = new TH2F(Form("h2_Pebeta[%d]",i),"proton #beta vs P;E (GeV); p (GeV)",50,0,4.5, 50,0.7, 1);
-		h2_elebeta[i] = new TH2F(Form("h2_elebeta[%d]",i),"el #beta vs P;E (GeV); p (GeV)",50,0,4.5, 50,0.7, 1);
-		h2_COIN_P_beta[i] = new TH2F(Form("h2_COIN_P_beta[%d]",i),"SHMS: ROC2 coin time vs #beta;coin time ns; p (GeV)",50,0,120, 50,0.7, 1);
-		h2_COIN_H_beta[i] = new TH2F(Form("h2_COIN_H_beta[%d]",i),"HMS: ROC2 coin time vs #beta;coin time ns; p (GeV)",50,0,120, 50,0.7, 1);
+		h2_Q2W[i] = new TH2F(Form("h2_Q2W[%d]",i),"W vs Q^{2};Q^{2} (GeV^{2}); W (GeV)",50,0.2,1., 50,0.7, 2.5);
+		h2_XQ2[i] = new TH2F(Form("h2_XQ2[%d]",i),"Q^{2} vs x_{bj};x_{bj}; Q^{2} (GeV^{2})",50,0.,0.5, 50,0.2, 1);
+		h2_Q2mt[i] = new TH2F(Form("h2_Q2mt[%d]",i),"-t vs Q^{2};Q^{2} (GeV^{2}); -t (GeV^{2})",50,0.2,1, 50,0.2, 1);
+		h2_ThCMPhi[i] = new TH2F(Form("h2_ThCMPhi[%d]",i),"#Theta_{CM} vs #Phi;#Phi (deg.);#Theta_{CM} (deg.)",50,0,360, 50,80, 180);
+		h2_nuep[i] = new TH2F(Form("h2_nuep[%d]",i),"#epsilon vs #nu;#nu (GeV);#epsilon",50,0,4.5, 50,0.5, 1);
+		h2_Q2Th[i] = new TH2F(Form("h2_Q2Th[%d]",i),"#Theta_{CM} vs Q^{2};Q^{2} (GeV^{2});#Theta_{CM} (deg.)",50,0.2, 1, 50,80, 180);
+		h2_WTh[i] = new TH2F(Form("h2_WTh[%d]",i),"#Theta_{CM} vs W;W (GeV);#Theta_{CM} (deg.)",50,0.7,2.5, 50, 80, 180);
+		h2_mtTh[i] = new TH2F(Form("h2_mtTh[%d]",i),"#Theta_{CM} vs -t;-t (GeV2);#Theta_{CM} (deg.)",50,0.2,1, 50,80, 180);
+
+		h2_Pebeta[i] = new TH2F(Form("h2_Pebeta[%d]",i),"proton #beta vs mom.;E (GeV); p (GeV)",50,0,4.5, 50,0.8, 1);
+		h2_elebeta[i] = new TH2F(Form("h2_elebeta[%d]",i),"el #beta vs mom.;E (GeV); p (GeV)",50,0,4.5, 50,0.8, 1);
+		h2_COIN_P_beta[i] = new TH2F(Form("h2_COIN_P_beta[%d]",i),"SHMS: ROC2 coin time vs #beta;coin time (ns); #beta", 400, -20, 20, 50,0.8, 1);
+		h2_COIN_H_beta[i] = new TH2F(Form("h2_COIN_H_beta[%d]",i),"HMS: ROC2 coin time vs #beta;coin time (ns); #beta", 400, -20, 20, 50,0.8, 1);
 		h2_Pemom[i] = new TH2F(Form("h2_Pemom[%d]",i),"proton E vs p;E (GeV); p (GeV)",50,0,2, 50,0, 2);
 		h2_elemom[i] = new TH2F(Form("h2_elemom[%d]",i),"el E vs p;E (GeV); p (GeV)", 50,0,2, 50,0, 2);
-		h2_gemom[i] = new TH2F(Form("h2_gemom[%d]",i),"missing E vs p;E (GeV); p (GeV)",50,0,2, 50,0, 2);
+		h2_gemom[i] = new TH2F(Form("h2_gemom[%d]",i),"missing E vs p;E_{miss} (GeV); p_{miss} (GeV)",50,0,2, 50,0, 2);
+		h2_M2miss_CT1[i] = new TH2F(Form("h2_M2miss_CT1[%d]",i),"missing mass vs ROC1 time;time (ns);M^2_{miss} (GeV^{2})",500,-20,20,150,-2,2);
+		h2_M2miss_CT2[i] = new TH2F(Form("h2_M2miss_CT2[%d]",i),"missing mass vs ROC2 time;time (ns);M^2_{miss} (GeV^{2})", 500,-20,20,150, -2, 2);
 
 	}
 
@@ -273,8 +388,13 @@ int ReadHallCData::InitHist(){
 /////////////////////////////////////////////////////////////////////////////
 
 int ReadHallCData::DeleteHist(){
+
 	h_ebeam->Delete(); h_pzbeam->Delete();h2_pxpybeam->Delete();
+	
 	for (int i=0; i<10; i++){
+		h2_M2miss_CT1[i]->Delete();h2_M2miss_CT2[i]->Delete();
+		h2_Q2W[i]->Delete(); h2_XQ2[i]->Delete(); h2_Q2mt[i]->Delete();  h2_ThCMPhi[i]->Delete();  
+		h2_nuep[i]->Delete(); h2_Q2Th[i]->Delete(); h2_WTh[i]->Delete();  h2_mtTh[i]->Delete();
 		h2_elebeta[i]->Delete(); h2_Pebeta[i]->Delete(); h2_COIN_P_beta[i]->Delete(); h2_COIN_H_beta[i]->Delete();
 		h_CTime_epCoinTime_ROC1[i]->Delete();h_CTime_epCoinTime_ROC2[i]->Delete(); h_CTime_epCoinTime_TRIG1[i]->Delete(); h_CTime_epCoinTime_TRIG2[i]->Delete();
 		h_Pmom[i]->Delete();  h_elmom[i]->Delete();  h_gmom[i]->Delete();  h_nu[i]->Delete(); h_Emiss[i]->Delete();  h_Mmiss[i]->Delete();  
@@ -287,74 +407,202 @@ int ReadHallCData::DeleteHist(){
 }
 
 ////////////////////////////////////////////
+int npeaks=30;
+double fpeaks(double *x, double *par){
+	double result=par[0]+par[1]*x[0];
+	double norm, mean, sigma;
+	for (int p=0; p<npeaks;p++){
+		norm = par[3*p+2];
+		mean = par[3*p+3];
+		sigma = par[3*p+4];
+		result += norm*TMath::Gaus(x[0],mean, sigma);
+	}
+	return result;
+}
 
-int ReadHallCData::DrawHist(){
+////////////////////////////////////////////
+
+int ReadHallCData::DrawHist(int run){
 
 	TCanvas *c1 = new TCanvas();
+	TSpectrum *spec = new TSpectrum(40);
+	int nfounds =0, bin=0, npeaks=0;
+	float xp, yp;
+	TF1 *fline =new TF1("fline","pol1",-20,20);
+	TF1 *fit;
+	double par[3000];
 
 	// timing
 	c1->cd(1);
-	h_CTime_epCoinTime_ROC1[0]->Draw(); gPad->SetLogy(1);
+	h_CTime_epCoinTime_ROC1[0]->Draw(); gPad->SetLogy(1); 
+	h_CTime_epCoinTime_ROC1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_ROC1[1]->SetLineColor(8); h_CTime_epCoinTime_ROC1[1]->Draw("same");
-	h_CTime_epCoinTime_ROC1[1]->SetLineColor(2); h_CTime_epCoinTime_ROC1[1]->Draw("same");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf("); c1->Clear(); c1->cd(1);
+	h_CTime_epCoinTime_ROC1[2]->SetLineColor(2); h_CTime_epCoinTime_ROC1[2]->Draw("same");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf(",run)); 
+	nfounds = spec->Search(h_CTime_epCoinTime_ROC1[2],1,"new");
+	cout<<"found "<<nfounds<<" peaks "<<endl; c1->Update();
+	h_CTime_epCoinTime_ROC1[2]->Fit("fline","qn");
+	double *xpeaks=spec->GetPositionX();
+	TH1F *h2=(TH1F*) h_CTime_epCoinTime_ROC1[2]->Clone("h2");
+	for (int p=0;p<nfounds;p++){
+		xp=xpeaks[p];
+		bin=h_CTime_epCoinTime_ROC1[2]->GetXaxis()->FindBin(xp);
+		yp=h_CTime_epCoinTime_ROC1[2]->GetBinContent(bin);
+		if ((yp-sqrt(yp))>fline->Eval(xp))continue;
+		par[3*npeaks+2]=yp;
+		par[3*npeaks+3]=xp;
+		par[3*npeaks+4]=3;
+		npeaks++;
+	}
+	fit = new TF1("fit",fpeaks,-20,20,2+3*npeaks);
+	TVirtualFitter::Fitter(h2, 10+3*npeaks);
+	fit->SetParameters(par);
+	fit->SetNpx(1000);
+	h2->Fit("fit");
+	
+
+	//h_CTime_epCoinTime_ROC1[2]->Fit("gaus");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_ROC2[0]->Draw(); gPad->SetLogy(1);
+	h_CTime_epCoinTime_ROC2[0]->SetMinimum(1);
 	h_CTime_epCoinTime_ROC2[1]->SetLineColor(8); h_CTime_epCoinTime_ROC2[1]->Draw("same");
-	h_CTime_epCoinTime_ROC2[1]->SetLineColor(2); h_CTime_epCoinTime_ROC2[1]->Draw("same");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf"); c1->Clear(); c1->cd(1);
+	h_CTime_epCoinTime_ROC2[2]->SetLineColor(2); h_CTime_epCoinTime_ROC2[2]->Draw("same");
+	//h_CTime_epCoinTime_ROC2[2]->Fit("gaus");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG1[0]->Draw(); gPad->SetLogy(0);
+	h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[1]->SetLineColor(8); h_CTime_epCoinTime_TRIG1[1]->Draw("same");
-	h_CTime_epCoinTime_TRIG1[1]->SetLineColor(2); h_CTime_epCoinTime_TRIG1[1]->Draw("same");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf"); c1->Clear(); c1->cd(1);
+	h_CTime_epCoinTime_TRIG1[2]->SetLineColor(2); h_CTime_epCoinTime_TRIG1[2]->Draw("same");
+	//h_CTime_epCoinTime_TRIG1[2]->Fit("gaus");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG2[0]->Draw(); gPad->SetLogy(0);
+	h_CTime_epCoinTime_TRIG2[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG2[1]->SetLineColor(8); h_CTime_epCoinTime_TRIG2[1]->Draw("same");
-	h_CTime_epCoinTime_TRIG2[1]->SetLineColor(2); h_CTime_epCoinTime_TRIG2[1]->Draw("same");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf"); c1->Clear(); 
+	h_CTime_epCoinTime_TRIG2[2]->SetLineColor(2); h_CTime_epCoinTime_TRIG2[2]->Draw("same");
+	//h_CTime_epCoinTime_TRIG2[2]->Fit("gaus");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); 
 	c1->Divide(2,1); c1->cd(1);
 	h2_COIN_H_beta[1]->SetLineColor(8); h2_COIN_H_beta[1]->Draw("col");
 	c1->cd(2); h2_COIN_H_beta[2]->SetLineColor(2); h2_COIN_H_beta[2]->Draw("col");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf"); c1->Clear();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear();
 	c1->Divide(2,1); c1->cd(1);
 	h2_COIN_P_beta[1]->SetLineColor(8); h2_COIN_P_beta[1]->Draw("col");
 	c1->cd(2); h2_COIN_P_beta[2]->SetLineColor(2); h2_COIN_P_beta[2]->Draw("col");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf"); c1->Clear(); c1->cd(1);
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime.pdf)"); c1->Clear(); c1->cd(1);
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	h2_M2miss_CT1[0]->Draw("col");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	h2_M2miss_CT2[0]->Draw("col");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf)",run)); c1->Clear(); c1->cd(1);
 
 	// positions
 
 	// kinematics
-	c1->Clear(); c1->cd(1);
-	h_Q2[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf(");
-	c1->Clear(); c1->cd(1);
-	h_Xbj[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->cd(1);
-	h_mt[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->cd(1);
-	h_nu[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->cd(1);
-	h_W[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->cd(1);
-	h_epsilon[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->cd(1);
-	h_Q2[0]->Draw();
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
+	c1->Clear(); 
+	c1->Divide(2,1); 
+	c1->cd(1); h_Q2[0]->Draw();
+	c1->cd(2); h_Q2[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf(",run));
 	c1->Clear();
-	c1->Divide(2,1); c1->cd(1);
-	h2_elebeta[1]->SetLineColor(8); h2_elebeta[1]->Draw("col"); 
-	c1->cd(2); h2_elebeta[2]->SetLineColor(2); h2_elebeta[2]->Draw("col");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf");
-	c1->Clear(); c1->Divide(2,1); c1->cd(1);
-	h2_Pebeta[1]->SetLineColor(8); h2_Pebeta[1]->Draw("col"); 
-	c1->cd(2); h2_Pebeta[2]->SetLineColor(2); h2_Pebeta[2]->Draw("col");
-	c1->SaveAs("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics.pdf)");
-	
+	c1->Divide(2,1); 
+	c1->cd(1); h_Xbj[0]->Draw();
+	c1->cd(2); h_Xbj[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear();
+	c1->Divide(2,1); 
+	c1->cd(1); h_mt[0]->Draw();
+	c1->cd(2); h_mt[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear(); 
+	c1->Divide(2,1); 
+	c1->cd(1); h_nu[0]->Draw();
+	c1->cd(2); h_nu[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear(); 
+	c1->Divide(2,1); 
+	c1->cd(1); h_W[0]->Draw();
+	c1->cd(2); h_W[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear(); 
+	c1->Divide(2,1); 
+	c1->cd(1); h_epsilon[0]->Draw();
+	c1->cd(2); h_epsilon[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear(); 
+	c1->Divide(1,1); 
+	c1->cd(1); h_Pmom[0]->Draw();
+	//c1->cd(2); h_Pmom[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->Clear();  
+	c1->cd(1); h_elmom[0]->Draw();
+	//c1->cd(2); h_elmom[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf)",run));
+	c1->Clear();
 
+	// missing mass...
+	c1->Clear();
+	c1->cd(1); h_gmom[0]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf(",run));
+	c1->Clear();
+	c1->cd(1); h_Mmiss[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	c1->Clear();
+	c1->cd(1); h_M2miss[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	c1->Clear();
+	c1->cd(1); h_Emiss[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	c1->Clear();
+	c1->cd(1); h_PTmiss[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	c1->Clear();
+	c1->cd(1); h_PT2miss[1]->Draw();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
+
+	// kinematics 2D plots
+	c1->Clear();
+	c1->Divide(2,1); 
+	c1->cd(1); h2_elebeta[1]->Draw("col"); 
+	c1->cd(2); h2_elebeta[2]->Draw("col");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf(",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_Pebeta[1]->Draw("col"); 
+	c1->cd(2); h2_Pebeta[2]->Draw("col");
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_Q2W[0]->Draw("col"); 
+	c1->cd(2); h2_Q2W[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_XQ2[0]->Draw("col"); 
+	c1->cd(2); h2_XQ2[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_Q2mt[0]->Draw("col"); 
+	c1->cd(2); h2_Q2mt[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_nuep[0]->Draw("col"); 
+	c1->cd(2); h2_nuep[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_Q2Th[0]->Draw("col"); 
+	c1->cd(2); h2_Q2Th[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_WTh[0]->Draw("col"); 
+	c1->cd(2); h2_WTh[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_ThCMPhi[0]->Draw("col"); 
+	c1->cd(2); h2_ThCMPhi[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear(); c1->Divide(2,1); 
+	c1->cd(1); h2_mtTh[0]->Draw("col"); 
+	c1->cd(2); h2_mtTh[1]->Draw("col"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->Clear();
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf)",run));
+	
 	return 1;
 }
 
@@ -373,20 +621,10 @@ ReadHallCData::~ReadHallCData()
         cerr<<"call destructor"<<endl;
    if (!iChain) return;
         cerr<<"tree found, will be deleted"<<endl;
-
-
    delete iChain->  GetCurrentFile()->GetName();
-   // fermer tous les files
-   //  regarder https://root.cern.ch/doc/master/classTChain.html#aad668d387765b84f90c8df6508c620f2
-   // trouver solution sinon systematique frag fault a la fin de la fonction; 
-
-    //delete iChain;
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-
-
 
 ReadHallCData::ReadHallCData () : iChain(0) 
 {
@@ -394,7 +632,7 @@ ReadHallCData::ReadHallCData () : iChain(0)
 }
 //////////////////////////////////////////////////////////////////////////
 
-ReadHallCData::ReadHallCData ( vector <string> files ) //: fChain(0) 
+ReadHallCData::ReadHallCData ( vector <string> files ) : iChain(0) 
 {
 
         iChain=new TChain("T");
@@ -427,7 +665,6 @@ ReadHallCData::ReadHallCData ( vector <string> files ) //: fChain(0)
 
 Int_t ReadHallCData::GetEntry(long long entry)
 {
-// Read contents of entry.
    if (!iChain) {
         cout<<"cannot open the tree"<<endl;
         return 0;
@@ -446,7 +683,6 @@ long long ReadHallCData::LoadTree(long long entry)
    if (!iChain->InheritsFrom(TChain::Class()))  return centry;
    TChain *chain = (TChain*)iChain;
    if (chain->GetTreeNumber() != fCurrent) {
-   // if (iChain->GetTreeNumber() != fCurrent) {
         fCurrent = iChain->GetTreeNumber();
         Notify();
    }
