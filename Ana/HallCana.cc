@@ -37,7 +37,7 @@ int main (int argc, char **argv){
 
 		cout<<" ... \n"<<endl;
 		
-		return 111;
+		return 1;
 	}
 
 	// need to change entry format. run index as an entry, prefix independent. same for all files. 
@@ -116,7 +116,7 @@ int main (int argc, char **argv){
 			cout<<">> start loop"<<endl;
 			RDD.InitHist();
 			RDD.Loop(filesarg, runID, process, what, target) ;
-			if (what.compare("ana")==0) RDD.DrawHist();
+			if (what.compare("ana")==0) RDD.DrawHist(runID);
 			RDD.DeleteHist();
 			cout<<">> no more options"<<endl;
 		}
