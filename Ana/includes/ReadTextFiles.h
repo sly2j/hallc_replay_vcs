@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <TROOT.h>
 #include <TStyle.h>
-#include <TDataType.h> 
+#include <TDataType.h>
+#include <TString.h>
+#include <string>
 //#include "Utils.h"
 //#include "Parameters.h"
 
@@ -35,7 +37,7 @@ int FillSingleRunEffInfos(string, int, float&, float&, float&, float&);
 
 int FillSingleRunTriggerInfos(string, int, float&, float&, float&, float&, float&, float&);
 
-int FillSingleRunRunInfos(string datatype, int, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&);
+int FillSingleRunRunInfos(string datatype, int, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&, float&);
 
 int GetRunNumList( int runnum, int *runtable , string datatype);
 

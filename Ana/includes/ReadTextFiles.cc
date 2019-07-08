@@ -20,10 +20,13 @@ bool IsBadRun(  int runint, int * badruntable
 
 int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmass, float &HMS_p_central, float &SHMS_p_central, 
 			  float &HMS_th_central, float &SHMS_th_central, float &HMS_run_l, float &SHMS_run_l, 
-			  float &HMS_B2_cur, float &SHMS_B2_cur, float &HMS_B4_cut, float &SHMS_B4_cut, float &HMS_B2_cur_cut, float &SHMS_B2_cur_cut, 
+			  float &HMS_B2_cur, float &SHMS_B2_cur, float &HMS_B4_cut, float &SHMS_B4_cut, 
+			  float &HMS_act_tim, float &SHMS_act_tim,
+			  float &HMS_B2_cur_cut, float &SHMS_B2_cur_cut, 
 			  float &HMS_live, float &SHMS_live){
 
-	float ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm, rt, rn, ro;
+	float ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm, rt, rn, ro, rp, rq;
+	string sa, sb, ssa, ssb; 
 	//printf("\n fill trigger info ...");
 	ifstream infile; 
         string ff;
@@ -39,8 +42,7 @@ int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmas
 	//infile>>run>>Eb>> targetmass>> HMS_p_central >> SHMS_p_central >> HMS_th_central >> SHMS_th_central >> HMS_B2_cur>> SHMS_B2_cur>> HMS_B4_cut>> SHMS_B4_cut >> HMS_B2_cur_cut>> SHMS_B2_cur_cut>>HMS_live>> SHMS_live;
 	
         //if (!(infile >> run)) return 0;
-	infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> rj >> rk >> rl >> rm;
-cout<<"=== "<<run<<" "<<ra<<" "<<rt<<" "<<rb<<" "<<rc<<" "<<endl;
+	infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> sa >> sb  >> rj >> rk >> rl >> rm;
 	Eb = ra; 
 	targetmass = rt; 
 	HMS_p_central = rb; 
@@ -57,7 +59,20 @@ cout<<"=== "<<run<<" "<<ra<<" "<<rt<<" "<<rb<<" "<<rc<<" "<<endl;
 	SHMS_B2_cur_cut = rk;
         SHMS_live = rl;	
         HMS_live = rm;	
-        	
+	//char *ca=sa.toCharArray();
+	//char *cb=sb.toCharArray();
+	//ssa= new string(ca, 0, ca.length-2);
+	//ssb= new string(cb, 0, cb.length-2);
+	
+	ssa = sa.substr(0, sa.length()-2);        
+	ssb = sb.substr(0, sb.length()-2);        
+	rp=atof(ssa.c_str());
+	rq=atof(ssb.c_str());
+	HMS_act_tim = rp;
+	SHMS_act_tim = rq;
+
+	cout<<sa<<" "<<sb<<" "<<ssa<<" "<<ssb<<" "<<rp<<" "<<rq<<endl;
+
 	infile.close();
 	return 1;
 }	
