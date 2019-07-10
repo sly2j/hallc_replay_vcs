@@ -43,8 +43,11 @@
 #include <TRandom3.h>
 #include <TSpectrum.h>
 #include <TVirtualFitter.h>
+#include <TList.h>
+#include <TDirectory.h>
 #include "Utils.h"
 #include "ReadTextFiles.h"
+#include "Constants.h"
 using namespace std;
 
 class ReadHallCData {
@@ -93,6 +96,17 @@ class ReadHallCData {
    float beta_proton, beta_electron;
    float Q2_kinmod, epsilon_kinmod, Xbj_kinmod, mt_kinmod, W_kinmod, nu_kinmod;
    float HMS_act_time, SHMS_act_time;
+   float time_trig1, time_trig2, time_roc1, time_roc2;
+   // files
+   ofstream outfile, out2;
+   ifstream infile; 
+   float inc[20];
+   string line;
+   float LL, hdp_low, hdp_up, sdp_low, sdp_up;
+   float th_hms_up, phi_hms_up, th_shms_up, phi_shms_up;
+   float hms_cal_en_cut, hms_cer_npe_cut;
+   float shms_aero_npe_cut, shms_hgcer_npe_cut;
+   float trig_time_cut_low, trig_time_cut_up, roc_time_cut_low, roc_time_cut_up, time_shift;
 
    // only in the code
    TLorentzVector LV_virtual, LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
@@ -100,15 +114,14 @@ class ReadHallCData {
    float Egout_CMeP, PinCM;
 
    // histograms
-   TH1F *h_CTime_epCoinTime_ROC1[10], *h_CTime_epCoinTime_ROC2[10], *h_CTime_epCoinTime_TRIG1[10], *h_CTime_epCoinTime_TRIG2[10];
-   TH1F *h_ebeam, *h_pzbeam;
-   TH1F *h_Pmom[10], *h_elmom[10], *h_gmom[10];
-   TH1F *h_Mmiss[10], *h_M2miss[10], *h_Emiss[10], *h_PTmiss[10], *h_PT2miss[10], *h_Pmiss_ref[10], *h_Thmiss_ref[10];
-   TH1F *h_Q2[10], *h_epsilon[10], *h_Xbj[10], *h_CosThCM[10], *h_ThCM[10], *h_mt[10], *h_W[10], *h_Phi[10], *h_nu[10]; 
-   TH2F *h2_pxpybeam, *h2_Pemom[10], *h2_elemom[10], *h2_gemom[10];
-   TH2F *h2_elebeta[10], *h2_Pebeta[10], *h2_COIN_P_beta[10], *h2_COIN_H_beta[10];
-   TH2F *h2_Q2W[10], *h2_XQ2[10], *h2_Q2mt[10], *h2_ThCMPhi[10], *h2_nuep[10], *h2_Q2Th[10], *h2_WTh[10], *h2_mtTh[10];
-   TH2F *h2_M2miss_CT1[10], *h2_M2miss_CT2[10];
+   TH1F *h_CTime_epCoinTime_ROC1[5], *h_CTime_epCoinTime_ROC2[5], *h_CTime_epCoinTime_TRIG1[5], *h_CTime_epCoinTime_TRIG2[5];
+   TH1F *h_Pmom[5], *h_elmom[5], *h_gmom[5];
+   TH1F *h_Mmiss[5], *h_M2miss[5], *h_Emiss[5], *h_PTmiss[5], *h_PT2miss[5]; 
+   TH1F *h_Q2[5], *h_epsilon[5], *h_Xbj[5], *h_CosThCM[5], *h_ThCM[5], *h_mt[5], *h_W[5], *h_Phi[5], *h_nu[5]; 
+   TH2F *h2_Pemom[5], *h2_elemom[5], *h2_gemom[5];
+   TH2F *h2_elebeta[5], *h2_Pebeta[5], *h2_COIN_P_beta[5], *h2_COIN_H_beta[5];
+   TH2F *h2_Q2W[5], *h2_XQ2[5], *h2_Q2mt[5], *h2_ThCMPhi[5], *h2_nuep[5], *h2_Q2Th[5], *h2_WTh[5], *h2_mtTh[5];
+   TH2F *h2_M2miss_CT1[5], *h2_M2miss_CT2[5];
 
    // for tree in  
    double H_gtr_xptar                ;
