@@ -98,7 +98,7 @@ class ReadHallCData {
    float HMS_act_time, SHMS_act_time;
    float time_trig1, time_trig2, time_roc1, time_roc2;
    // files
-   ofstream outfile, out2;
+   ofstream outfile, out2, out3;
    ifstream infile; 
    float inc[20];
    string line;

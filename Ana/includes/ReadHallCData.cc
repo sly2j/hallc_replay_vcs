@@ -256,8 +256,8 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 			ThCM_data = acos(CosThCM_data)*180./PI;
 
 		}
-		h2_M2miss_CT1[0]->Fill(CTime_epCoinTime_ROC1,M2miss_data);
-		h2_M2miss_CT2[0]->Fill(CTime_epCoinTime_ROC2,M2miss_data);
+		h2_M2miss_CT1[0]->Fill(CTime_epCoinTime_ROC1,Mmiss_data);
+		h2_M2miss_CT2[0]->Fill(CTime_epCoinTime_ROC2,Mmiss_data);
 
 		// timing cuts
 		if ((CTime_epCoinTime_ROC1-time_shift)<roc_time_cut_low) continue;
@@ -453,17 +453,17 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 int ReadHallCData::InitHist(){
 
 	h_encal_hms = new TH1F("h_encal_hms","energy cal HMS;E (GeV);events",100,0,1.25);
-	h_cer_npe_hms= new TH1F("h_encal_hms","npe cer HMS;npe;events",30,0,30);
-	h_aero_npe_shms= new TH1F("h_encal_hms","npe aerogel HMS;npe;events",25,0,25);
-	h_hgcer_npe_shms= new TH1F("h_encal_hms",";npe hgcer;events",10,0,10);
-	h_delta_hms= new TH1F("h_encal_hms","#Delta p HMS;#Delta p HMS;events",120,-30,30);
-	h_delta_shms= new TH1F("h_encal_hms","#Delta p SHMS;# p SHMS;events",120,-30,50);
-	h_phi_hms= new TH1F("h_encal_hms","#phi HMS;#phi;events",120,-0.12,0.12);
-	h_theta_hms= new TH1F("h_encal_hms","#theta HMS;#theta;events",120,-0.12,0.12);
-	h_phi_shms= new TH1F("h_encal_hms","#phi SHMS;E (GeV);events",120,-0.12,0.12);
-	h_theta_shms= new TH1F("h_encal_hms","#theta SHMS;E (GeV);events",120,-0.12,0.12);
-	h2_encal_cer= new TH2F("h_encal_hms","HMS npe cer vs energy cal;E (GeV);npe",100,0,1.15,30,0,30 );
-	h2_aero_hgcer_npe= new TH2F("h_encal_hms","SHMS npe hgcer vs aero;npe;npe",25,0,25,10,0,10);
+	h_cer_npe_hms= new TH1F("h_cer_npe_hms","npe cer HMS;npe;events",30,0,30);
+	h_aero_npe_shms= new TH1F("h_aero_npe_shms","npe aerogel HMS;npe;events",25,0,25);
+	h_hgcer_npe_shms= new TH1F("h_hgcer_npe_shms",";npe hgcer;events",10,0,10);
+	h_delta_hms= new TH1F("h_delta_hms","#Delta p HMS;#Delta p HMS;events",120,-30,30);
+	h_delta_shms= new TH1F("h_delta_shms","#Delta p SHMS;# p SHMS;events",120,-30,50);
+	h_phi_hms= new TH1F("h_phi_hms","#phi HMS;#phi;events",120,-0.12,0.12);
+	h_theta_hms= new TH1F("h_theta_hms","#theta HMS;#theta;events",120,-0.12,0.12);
+	h_phi_shms= new TH1F("h_phi_shms","#phi SHMS;E (GeV);events",120,-0.12,0.12);
+	h_theta_shms= new TH1F("h_theta_shms","#theta SHMS;E (GeV);events",120,-0.12,0.12);
+	h2_encal_cer= new TH2F("h_encal_cer","HMS npe cer vs energy cal;E (GeV);npe",100,0,1.15,30,0,30 );
+	h2_aero_hgcer_npe= new TH2F("h_aero_hgcer_npe","SHMS npe hgcer vs aero;npe;npe",25,0,25,10,0,10);
 
 	for (int i=0; i<5; i++){
 	
@@ -471,14 +471,14 @@ int ReadHallCData::InitHist(){
 		h_CTime_epCoinTime_ROC2[i] = new TH1F(Form("h_CTime_epCoinTime_ROC2[%d]",i),"coin time roc 2 - delay;time (ns);events", 600, -30, 30);
 		h_CTime_epCoinTime_TRIG1[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG1[%d]",i),"trigger 1 time - delay;time (ns);events", 500, -500, 500);
 		h_CTime_epCoinTime_TRIG2[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG2[%d]",i),"trigger 4 time - delay;time (ns);events", 500, -500, 500);
-		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"proton mom.;p_{P} (GeV);events",50,0,4.5);	
-		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"electron mom.;p_{e} (GeV);events",50,0,4.5);	
-		h_gmom[i] = new TH1F(Form("h_gmom[%d]",i),"missing mom. (g);p_{miss} (GeV);events",50,0,3);	
-		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;E_{miss} (GeV);events",50,-3,3);	
-		h_Mmiss[i] = new TH1F(Form("h_Mmiss[%d]",i),"missing mass;M_{miss} (GeV);events",50,-3,3);	
-		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M^{2}_{miss} (GeV^{2});events",50,-3,3);	
-		h_PTmiss[i] = new TH1F(Form("h_PTmiss[%d]",i),"missing PT;P_{T,miss} (GeV);events",50,0,1);	
-		h_PT2miss[i] = new TH1F(Form("h_PT2miss[%d]",i),"missing PT2;P_{T,miss}^{2} (GeV^{2});events",50,0,1);	
+		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"proton mom.;p_{P} (GeV);events",100,0,4.5);	
+		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"electron mom.;p_{e} (GeV);events",100,0,4.5);	
+		h_gmom[i] = new TH1F(Form("h_gmom[%d]",i),"missing mom. (g);p_{miss} (GeV);events",100,0,3);	
+		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;E_{miss} (GeV);events",100,-1,1.5);	
+		h_Mmiss[i] = new TH1F(Form("h_Mmiss[%d]",i),"missing mass;M_{miss} (GeV);events",100,-0.5,1.5); // CHANGE!!!	
+		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M^{2}_{miss} (GeV^{2});events",100,0.7,1.2);	
+		h_PTmiss[i] = new TH1F(Form("h_PTmiss[%d]",i),"missing PT;P_{T,miss} (GeV);events",100,0,0.5);	
+		h_PT2miss[i] = new TH1F(Form("h_PT2miss[%d]",i),"missing PT2;P_{T,miss}^{2} (GeV^{2});events",100,0,3);	
 		h_Q2[i] = new TH1F(Form("h_Q2[%d]",i),"Q^{2};Q^{2} (GeV^{2});events", 50, 0, 1);
 		h_epsilon[i] = new TH1F(Form("h_epsilon[%d]",i),"#epsilon;#epsilon;events", 50, 0, 1);
 		h_Xbj[i] = new TH1F(Form("h_Xbj[%d]",i),"x_{bj};x_{bj};events", 50, 0, 1);
@@ -498,8 +498,8 @@ int ReadHallCData::InitHist(){
 		h2_WTh[i] = new TH2F(Form("h2_WTh[%d]",i),"#Theta_{CM} vs W;W (GeV);#Theta_{CM} (deg.)",50,0.7,3, 50, 0, 180);
 		h2_mtTh[i] = new TH2F(Form("h2_mtTh[%d]",i),"#Theta_{CM} vs -t;-t (GeV2);#Theta_{CM} (deg.)",50,0.2,3, 50,0, 180);
 
-		h2_Pebeta[i] = new TH2F(Form("h2_Pebeta[%d]",i),"proton #beta vs mom.;E (GeV); #beta",50,0,4.5, 50,0.7, 1.2);
-		h2_elebeta[i] = new TH2F(Form("h2_elebeta[%d]",i),"el #beta vs mom.;E (GeV); #beta",50,0,4.5, 50,0.7, 1.2);
+		h2_Pebeta[i] = new TH2F(Form("h2_Pebeta[%d]",i),"HMS #beta vs mom.;E (GeV); #beta",50,0,4.5, 50,0.7, 1.2);
+		h2_elebeta[i] = new TH2F(Form("h2_elebeta[%d]",i),"SHMS #beta vs mom.;E (GeV); #beta",50,0,4.5, 50,0.7, 1.2);
 		h2_COIN_P_beta[i] = new TH2F(Form("h2_COIN_P_beta[%d]",i),"SHMS: #beta vs ROC1 coin time - delay;time (ns); #beta", 600, -30, 30, 50,0.7, 1.2);
 		h2_COIN_H_beta[i] = new TH2F(Form("h2_COIN_H_beta[%d]",i),"HMS: #beta vs ROC1 coin time - delay;time (ns); #beta", 600, -30, 30, 50,0.7, 1.2);
 		h2_Pemom[i] = new TH2F(Form("h2_Pemom[%d]",i),"proton p vs E;E (GeV); p (GeV)",50,0,4.5, 50,0, 4.5);
@@ -565,27 +565,29 @@ int ReadHallCData::DrawHist(string process, int run){
 
 	TCanvas *c1 = new TCanvas();
 	TSpectrum *spec = new TSpectrum(100);
+	TSpectrum *smass = new TSpectrum(10);
 	int nfounds =0, bin=0, npeaks=0, bmin, bmax;
 	float xp, yp, integral;
 	float pos_mem[3]={-1}, int_mem[3]={0}, max_mem[3]={0};
 	int itag[3]={-1};
 	float sum_bkg_up=0, sum_bkg_low=0, sum_bkg_av=0;
 	vector <float> peak_pos, peak_int, peak_max;
+	vector <float> peak_pos_mass, peak_int_mass, peak_max_mass;
 	outfile.open(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/timing_%d.dat", run));
 
 	// timing
 	c1->cd(1);
-	h_CTime_epCoinTime_ROC1[0]->Draw(); gPad->SetLogy(1); 
-	h_CTime_epCoinTime_ROC1[0]->SetMinimum(1);
-	h_CTime_epCoinTime_ROC1[1]->SetLineColor(8); h_CTime_epCoinTime_ROC1[1]->Draw("same");
-	h_CTime_epCoinTime_ROC1[2]->SetLineColor(2); h_CTime_epCoinTime_ROC1[2]->Draw("same");
+	h_CTime_epCoinTime_ROC2[0]->Draw(); gPad->SetLogy(1); 
+	h_CTime_epCoinTime_ROC2[0]->SetMinimum(1);
+	h_CTime_epCoinTime_ROC2[1]->SetLineColor(8); h_CTime_epCoinTime_ROC2[1]->Draw("same");
+	h_CTime_epCoinTime_ROC2[2]->SetLineColor(2); h_CTime_epCoinTime_ROC2[2]->Draw("same");
 	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf(",run)); 
 	cout<<"start fitting timing peaks, can take time"<<endl;
-	nfounds = spec->Search(h_CTime_epCoinTime_ROC1[2],1,"new");
+	nfounds = spec->Search(h_CTime_epCoinTime_ROC2[2],1,"new");
 	cout<<"found "<<nfounds<<" peaks "<<endl; c1->Update();
 	
 	double *xpeaks=spec->GetPositionX();
-	TH1F *h2=(TH1F*) h_CTime_epCoinTime_ROC1[2]->Clone("h2");
+	TH1F *h2=(TH1F*) h_CTime_epCoinTime_ROC2[2]->Clone("h2");
 	c1->Clear(); gPad->SetLogy(0);
 	c1->cd(1); h2->Draw(""); gPad->SetLogy(0);
 	cout<<"peaks positions (ns) and counts: "<<endl; 
@@ -643,36 +645,22 @@ int ReadHallCData::DrawHist(string process, int run){
 	else sum_bkg_av=sum_bkg_low;
 
 	cout<<"main timing peaks:"<<endl;
-	cout<<"1) delay: "<<pos_mem[0]<<" charges: "<<int_mem[0]<<" peak index "<< itag[0] << " peak max "<<max_mem[0]<<endl;
-	cout<<"2) delay: "<<pos_mem[1]<<" charges: "<<int_mem[1]<<" peak index "<< itag[1] << " peak max "<<max_mem[1] <<endl;
-	cout<<"3) delay: "<<pos_mem[2]<<" charges: "<<int_mem[2]<<" peak index "<< itag[2] << " peak max "<<max_mem[2] <<endl;
+	cout<<"1) delay: "<<pos_mem[0]<<" N events: "<<int_mem[0]<<" peak index "<< itag[0] << " peak max "<<max_mem[0]<<endl;
+	cout<<"2) delay: "<<pos_mem[1]<<" N events: "<<int_mem[1]<<" peak index "<< itag[1] << " peak max "<<max_mem[1] <<endl;
+	cout<<"3) delay: "<<pos_mem[2]<<" N events: "<<int_mem[2]<<" peak index "<< itag[2] << " peak max "<<max_mem[2] <<endl;
 	cout<<"background up: "<<sum_bkg_up<<" background low: "<<sum_bkg_low<<endl;
-	cout<<"charges in each peak: "<<int_mem[0]-sum_bkg_av<<" "<<int_mem[1]-sum_bkg_av<<" "<<int_mem[2]-sum_bkg_av<<endl;
+	cout<<"N events in each peak: "<<int_mem[0]-sum_bkg_av<<" "<<int_mem[1]-sum_bkg_av<<" "<<int_mem[2]-sum_bkg_av<<endl;
 	outfile<< pos_mem[0]<<" "<<int_mem[0]-sum_bkg_av<<" "<<int_mem[0]<<" "<<sum_bkg_up<<" "<<sum_bkg_low<<" "<<max_mem[0]<<endl;
 	outfile<< pos_mem[1]<<" "<<int_mem[1]-sum_bkg_av<<" "<<int_mem[1]<<" "<<sum_bkg_up<<" "<<sum_bkg_low<<" "<<max_mem[1]<<endl;
 	outfile<< pos_mem[2]<<" "<<int_mem[2]-sum_bkg_av<<" "<<int_mem[2]<<" "<<sum_bkg_up<<" "<<sum_bkg_low<<" "<<max_mem[2]<<endl;
 	outfile.close();
-	//TF1 *fgaus =new TF1("fgaus","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])", xpeaks[0]-1,xpeaks[0]+1);
-	//fgaus->FixParameter(1,xpeaks[0]);
-	//fgaus->SetParLimits(2,0.1,1);
-	//h_CTime_epCoinTime_ROC1[2]->Fit("fgaus","B");	
-	//for (int p=0;p<nfounds;p++){
-	//	xp=xpeaks[p];
-	//	bin=h_CTime_epCoinTime_ROC1[2]->GetXaxis()->FindBin(xp);
-	//	yp=h_CTime_epCoinTime_ROC1[2]->GetBinContent(bin);
-	//	par[3*npeaks+2]=yp;
-	//	par[3*npeaks+3]=xp;
-	//	par[3*npeaks+4]=3;
-	//	cout<<"peak position: "<<xp<< " peak height "<<yp<<endl;
-	//	npeaks++;
-	//}
 	
 
 	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
-	h_CTime_epCoinTime_ROC2[0]->Draw(); gPad->SetLogy(1);
-	h_CTime_epCoinTime_ROC2[0]->SetMinimum(1);
-	h_CTime_epCoinTime_ROC2[1]->SetLineColor(8); h_CTime_epCoinTime_ROC2[1]->Draw("same");
-	h_CTime_epCoinTime_ROC2[2]->SetLineColor(2); h_CTime_epCoinTime_ROC2[2]->Draw("same");
+	h_CTime_epCoinTime_ROC1[0]->Draw(); gPad->SetLogy(1);
+	h_CTime_epCoinTime_ROC1[0]->SetMinimum(1);
+	h_CTime_epCoinTime_ROC1[1]->SetLineColor(8); h_CTime_epCoinTime_ROC1[1]->Draw("same");
+	h_CTime_epCoinTime_ROC1[2]->SetLineColor(2); h_CTime_epCoinTime_ROC1[2]->Draw("same");
 	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG1[0]->Draw(); gPad->SetLogy(1); h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
@@ -901,7 +889,127 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(4); 
 	h_gmom[2]->SetLineColor(6); h_gmom[2]->Draw("HIST"); //gPad->SetLogy(1);
 	h_gmom[4]->Draw("HISTsame"); h_gmom[3]->SetLineColor(8); h_gmom[3]->Draw("HISTsame"); 
+	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	// fit of exclusivity
+	cout<<"fit of missing mass"<<endl;
+	nfounds = 0; npeaks = 0; 
+	for (int i=0;i<3;i++){
+		pos_mem[i]=-1; int_mem[i]=0; max_mem[i]=0;	
+	}
+	nfounds = smass->Search(h_M2miss[4],1,"new");
+	cout<<"found "<<nfounds<<" peaks in missing mass distribution "<<endl;
+	double *xpM=smass->GetPositionX();
+	TH1F *hM= (TH1F*) h_M2miss[4]->Clone("hM");
+	c1->Clear(); c1->Divide(1,1); c1->cd(1); hM->SetLineColor(1); hM->Draw("HIST");gPad->SetLogy(0);
+	for (int i=0; i<nfounds; i++){
+		xp=xpM[i];
+	        bin=hM->GetXaxis()->FindBin(xp);
+		yp=hM->GetBinContent(bin);
+		peak_max_mass.push_back(yp);
+		peak_pos_mass.push_back(xpM[i]);
+		bmin = hM->GetXaxis()->FindBin(xpM[i]-0.01);
+		bmax = hM->GetXaxis()->FindBin(xpM[i]+0.01);
+		if (bmin>0 && bmax<hM->GetSize()-2) integral = hM->Integral(bmin,bmax);
+		peak_int_mass.push_back(integral);
+		cout<<" "<<xpM[i]<<" "<<integral<<" "<<yp<<endl;
+		if (peak_int_mass[i] > int_mem[0]) {
+			max_mem[0] = peak_max_mass[i];
+			int_mem[0] = peak_int_mass[i];
+			pos_mem[0] = xpM[i];
+			itag[0]=i;
+		}
+	}
+	if (nfounds>1){
+	    for (int i=0; i<nfounds; i++){
+		if (i==itag[0]) continue;
+		if (peak_int_mass[i] > int_mem[1]) {
+			max_mem[1] = peak_max_mass[i];
+			int_mem[1] = peak_int_mass[i];
+			pos_mem[1] = xpM[i];
+			itag[1]=i;
+		}
+	    }
+	}
+	if (nfounds>2){
+	   for (int i=0; i<nfounds; i++){
+		if (i==itag[0] || i==itag[1]) continue;
+		if (peak_int_mass[i] > int_mem[2]) {
+			max_mem[2] = peak_max_mass[i];
+			int_mem[2] = peak_int_mass[i];
+			pos_mem[2] = xpM[i];
+			itag[2]=i;
+		}
+	   }
+	}
+	/*
+	TF1 *fgaus =new TF1("fgaus","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",0.9,1.05);// pos_mem[0]-0.1,pos_mem[0]+0.1);
+	//TF1 *fgaus2 =new TF1("fgaus2","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",-0.2,1.2);// pos_mem[0]-0.1,pos_mem[0]+0.1);
+	//TF1 *fgaus3 =new TF1("fgaus2","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",-0.2,1.2);// pos_mem[0]-0.1,pos_mem[0]+0.1);
+	fgaus->SetParameter(0,max_mem[0]*1.01); 
+	fgaus->SetParameter(1,pos_mem[0]); 
+	fgaus->SetParameter(2,0.005*1.01); 
+	fgaus->SetParLimits(1,pos_mem[0]-0.015,pos_mem[0]+0.015);
+	fgaus->SetParLimits(0,max_mem[0]/3.,max_mem[0]*2);
+	fgaus->SetParLimits(2,0.0001, 0.1);
+	if (nfounds>1){
+		fgaus2->SetParameter(0,max_mem[1]); 
+		fgaus2->SetParameter(1,pos_mem[1]); 
+		fgaus2->SetParameter(2,0.005); 
+		fgaus2->SetParLimits(1,pos_mem[1]-0.015,pos_mem[1]+0.015);
+		fgaus2->SetParLimits(0,max_mem[1]/3.,max_mem[1]*2);
+		fgaus2->SetParLimits(2,0.001, 0.1);
+	}	
+	if (nfounds>2){
+		fgaus3->SetParameter(0,max_mem[2]); 
+		fgaus3->SetParameter(1,pos_mem[2]); 
+		fgaus3->SetParameter(2,0.005); 
+		fgaus3->SetParLimits(1,pos_mem[2]-0.015,pos_mem[2]+0.015);
+		fgaus3->SetParLimits(0,max_mem[2]/3.,max_mem[2]*2);
+		fgaus3->SetParLimits(2,0.001, 0.1);
+	}*/
+	/*	
+	hM->Fit("fgaus", "");
+	//hM->Fit("fgaus", "ER");
+	fgaus->Draw("same");
+	double gf_par[3];
+	gf_par[0] = (float) fgaus->GetParameter(0);
+	gf_par[1] = (float) fgaus->GetParameter(1);
+	gf_par[2] = (float) fgaus->GetParameter(2);
+	//integral =(float) fgaus->Integral((double) (gf_par[1]-3*gf_par[2]), (double) (gf_par[1]+3*gf_par[2]), 1e-6);
+	integral = gf_par[0]*sqrt(PI*(2.*pow(gf_par[2],2))) ;
+	integral *= 1./((gf_par[1]+3*gf_par[2])-(gf_par[1]-3*gf_par[2]));
+	cout<<" gaus mmass fit par "<<gf_par[0]<<" "<<gf_par[1]<<" "<<gf_par[2]<< " 3sig integral "<<integral<<endl;
+		
+	bmin = hM->GetXaxis()->FindBin((gf_par[1]-gf_par[2]));
+	bmax = hM->GetXaxis()->FindBin((gf_par[1]+gf_par[2]));
+	if (bmin>0 && bmax<hM->GetSize()-2) integral = hM->Integral(bmin,bmax);
+	cout<<" sum 1 sigm "<<integral<<endl;
+	*/
+	//fgaus->SetParLimits(2,0.1,1);
+	//h_CTime_epCoinTime_ROC1[2]->Fit("fgaus","B");	
+	//for (int p=0;p<nfounds;p++){
+	//	xp=xpeaks[p];
+	//	bin=h_CTime_epCoinTime_ROC1[2]->GetXaxis()->FindBin(xp);
+	//	yp=h_CTime_epCoinTime_ROC1[2]->GetBinContent(bin);
+	//	par[3*npeaks+2]=yp;
+	//	par[3*npeaks+3]=xp;
+	//	par[3*npeaks+4]=3;
+	//	cout<<"peak position: "<<xp<< " peak height "<<yp<<endl;
+	//	npeaks++;
+	//}
+		
+	out3.open(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/missmass2_%d.dat", run));
+	cout<<"main mass peaks"<<endl;
+	cout<<"1) mass : "<<pos_mem[0]<<" "<<" peak integral (tot)= "<<int_mem[0]<<" peak index= "<<itag[0]<<" peak max= "<<max_mem[0]<<endl;
+	cout<<"2) mass : "<<pos_mem[1]<<" "<<" peak integral (tot)= "<<int_mem[1]<<" peak index= "<<itag[1]<<" peak max= "<<max_mem[1]<<endl;
+	cout<<"3) mass : "<<pos_mem[2]<<" "<<" peak integral (tot)= "<<int_mem[2]<<" peak index= "<<itag[2]<<" peak max= "<<max_mem[2]<<endl;
+	out3<<pos_mem[0]<<" "<<" "<<int_mem[0]<<" "<<itag[0]<<" "<<max_mem[0]<<endl;
+	out3<<pos_mem[1]<<" "<<" "<<int_mem[1]<<" "<<itag[1]<<" "<<max_mem[1]<<endl;
+	out3<<pos_mem[2]<<" "<<" "<<int_mem[2]<<" "<<itag[2]<<" "<<max_mem[2]<<endl;
+	out3.close();
+
 	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
+
 
 	// kinematics 2D plots
 	c1->Clear();

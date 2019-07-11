@@ -68,7 +68,8 @@ int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmas
 	//infile>>run>>Eb>> targetmass>> HMS_p_central >> SHMS_p_central >> HMS_th_central >> SHMS_th_central >> HMS_B2_cur>> SHMS_B2_cur>> HMS_B4_cut>> SHMS_B4_cut >> HMS_B2_cur_cut>> SHMS_B2_cur_cut>>HMS_live>> SHMS_live;
 	
         //if (!(infile >> run)) return 0;
-	infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> sa >> sb  >> rj >> rk >> rl >> rm;
+	infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> rp >> rq  >> rj >> rk >> rl >> rm;
+	//infile >> run >> ra >> rt >> rb >> rc >> rd >> re >> rn >> ro >> rf >> rg >> rh >> ri >> sa >> sb  >> rj >> rk >> rl >> rm;
 	Eb = ra; 
 	targetmass = rt; 
 	HMS_p_central = rb; 
@@ -85,15 +86,12 @@ int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmas
 	SHMS_B2_cur_cut = rk;
         SHMS_live = rl;	
         HMS_live = rm;	
-	//char *ca=sa.toCharArray();
-	//char *cb=sb.toCharArray();
-	//ssa= new string(ca, 0, ca.length-2);
-	//ssb= new string(cb, 0, cb.length-2);
 	
-	ssa = sa.substr(0, sa.length()-2);        
-	ssb = sb.substr(0, sb.length()-2);        
-	rp=atof(ssa.c_str());
-	rq=atof(ssb.c_str());
+	//ssa = sa.substr(0, sa.length()-2);        
+	//ssb = sb.substr(0, sb.length()-2);        
+	//rp=atof(ssa.c_str());
+	//rq=atof(ssb.c_str());
+
 	HMS_act_tim = rp;
 	SHMS_act_tim = rq;
 
