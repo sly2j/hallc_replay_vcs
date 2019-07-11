@@ -11,7 +11,17 @@
 .nfs*
 *.root
 
+
 # Directories
+Ana/Results/*.pdf
+Ana/files/*.dat
+Ana/files/*.txt
+Ana/files/*.root
+Ana/datainfo/runlist/*.txt
+Ana/datainfo/mergedruninfo/*.txt
+Ana/datainfo/savedreports/*.report
+Ana/datainfo/singleruninfo/*.txt
+Ana/datainfo/badrun/*.txt
 REPORT_OUTPUT
 HISTOGRAMS
 MON_OUTPUT
