@@ -5,7 +5,6 @@ Created July 5th, 2019
 
 #include <iostream>
 #include <string.h>
-//#include "includes/ReduceHallCData.h"
 #include "includes/ReadHallCData.h"
 using namespace std;
 
@@ -41,17 +40,12 @@ int main (int argc, char **argv){
 		return 1;
 	}
 
-	// need to change entry format. run index as an entry, prefix independent. same for all files. 
-	// enable reading list. 
-	// will add one string
-
 	string process=argv[1];
 	string what=argv[2];
 	string target=argv[3];
 	int runID=atoi(argv[4]);	
 	string test=argv[5];
 	vector <string> filesarg;
-	//vector <string> filesarg_assoc;
 	string listoffiles;
 	string content="";
 	string files_princ;
@@ -80,8 +74,6 @@ int main (int argc, char **argv){
      } else if (test=="-f" || test=="-files") {
     
             int nn = 6;
-	    //int nn=5;
-            //for (char **arg=argv+6; *arg; ++arg) {
             for (char **arg=argv+6; *arg; ++arg) {
     
                 string check =  string(*arg); 
@@ -113,7 +105,6 @@ int main (int argc, char **argv){
 	if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0) {
 		cout<<"Analyze hallc coin reco data"<<endl;
 		ReadHallCData RDD;
-		//ReduceHallCData RDD;
 		if (what.compare("ana")==0 || what.compare("reduce")==0){
 			
 			cout<<">> start loop"<<endl;

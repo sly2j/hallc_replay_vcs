@@ -2,9 +2,9 @@
 
 echo "arguments: 1) run number 2) events" 
 
-set dir="/home/cdaq/mboer/hallc_replay_vcs/REPORT_OUTPUT/COIN/PRODUCTION/"
+set dir="/home/cdaq/vcs2019/hallc_replay_vcs/REPORT_OUTPUT/COIN/PRODUCTION/"
 set file="replay_coin_production"
-set loc="/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo/singleruninfo"
+set loc="/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/singleruninfo"
 set outfile1="${loc}/run_info_${1}.txt"
 set outfile2="${loc}/eff_info_${1}.txt"
 set outfile3="${loc}/trigger_info_${1}.txt"

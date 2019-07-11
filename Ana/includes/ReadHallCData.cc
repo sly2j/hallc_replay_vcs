@@ -69,7 +69,7 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	lumiexp_SHMS = SHMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * SHMS_act_time * 1000;
         cout<<"\n*** Measured luminosity HMS / SHMS = "<<lumiexp_HMS<< " "<<lumiexp_SHMS<< " nb"<<endl;  
 
-	TFile *file = new TFile(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/HallCData_%d.root",runID),"RECREATE"); 
+	TFile *file = new TFile(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/HallCData_%d.root",runID),"RECREATE"); 
         if ( file->IsOpen() ) printf("File opened successfully\n");
 	TTree *HallCTree = new TTree("HallCTree","HallC tree + internal format");
 	gDirectory->ls("-m");
@@ -440,7 +440,7 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	file->Write();
 	file->Close();
 	
-	out2.open(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/lumi_%d.dat", runID));
+	out2.open(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/lumi_%d.dat", runID));
 	out2 << runID << " "<< lumiexp_HMS << " "<<lumiexp_SHMS <<" "<< HMS_act_time << " "<< SHMS_act_time << " "<<HMS_B2_cur_cut<<" "<< SHMS_B2_cur_cut<<endl;
 	out2.close();
 			
@@ -573,7 +573,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	float sum_bkg_up=0, sum_bkg_low=0, sum_bkg_av=0;
 	vector <float> peak_pos, peak_int, peak_max;
 	vector <float> peak_pos_mass, peak_int_mass, peak_max_mass;
-	outfile.open(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/timing_%d.dat", run));
+	outfile.open(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/timing_%d.dat", run));
 
 	// timing
 	c1->cd(1);
@@ -581,7 +581,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	h_CTime_epCoinTime_ROC2[0]->SetMinimum(1);
 	h_CTime_epCoinTime_ROC2[1]->SetLineColor(8); h_CTime_epCoinTime_ROC2[1]->Draw("same");
 	h_CTime_epCoinTime_ROC2[2]->SetLineColor(2); h_CTime_epCoinTime_ROC2[2]->Draw("same");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf(",run)); 
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf(",run)); 
 	cout<<"start fitting timing peaks, can take time"<<endl;
 	nfounds = spec->Search(h_CTime_epCoinTime_ROC2[2],1,"new");
 	cout<<"found "<<nfounds<<" peaks "<<endl; c1->Update();
@@ -656,34 +656,34 @@ int ReadHallCData::DrawHist(string process, int run){
 	outfile.close();
 	
 
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_ROC1[0]->Draw(); gPad->SetLogy(1);
 	h_CTime_epCoinTime_ROC1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_ROC1[1]->SetLineColor(8); h_CTime_epCoinTime_ROC1[1]->Draw("same");
 	h_CTime_epCoinTime_ROC1[2]->SetLineColor(2); h_CTime_epCoinTime_ROC1[2]->Draw("same");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG1[0]->Draw(); gPad->SetLogy(1); h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[1]->SetLineColor(8); h_CTime_epCoinTime_TRIG1[1]->Draw("same");
 	h_CTime_epCoinTime_TRIG1[2]->SetLineColor(2); h_CTime_epCoinTime_TRIG1[2]->Draw("same");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG2[0]->Draw(); gPad->SetLogy(1); h_CTime_epCoinTime_TRIG2[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG2[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG2[1]->SetLineColor(8); h_CTime_epCoinTime_TRIG2[1]->Draw("same");
 	h_CTime_epCoinTime_TRIG2[2]->SetLineColor(2); h_CTime_epCoinTime_TRIG2[2]->Draw("same");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); 
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); 
 	c1->Divide(1,2); 
 	c1->cd(1); h2_COIN_H_beta[1]->Draw("colz"); gPad->SetLogy(0);
 	c1->cd(2); h2_COIN_H_beta[2]->Draw("colz"); gPad->SetLogy(0);
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear();
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear();
 	c1->Divide(1,2); 
 	c1->cd(1); h2_COIN_P_beta[1]->Draw("colz"); gPad->SetLogy(0);
 	c1->cd(2); h2_COIN_P_beta[2]->Draw("col"); gPad->SetLogy(0);
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); 
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); 
 	c1->Clear(); c1->Divide(1,2); 
 	c1->cd(1); h2_M2miss_CT1[0]->Draw("colz"); gPad->SetLogy(0);
 	c1->cd(2); h2_M2miss_CT2[0]->Draw("colz"); gPad->SetLogy(0);
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/cointime_%d.pdf)",run)); 
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf)",run)); 
 	c1->Clear(); 
 
 	// positions
@@ -691,22 +691,22 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(1); h_encal_hms->Draw();
 	c1->cd(2); h_cer_npe_hms->Draw();
 	c1->cd(3); h2_encal_cer->Draw("colz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/positions_%d.pdf(",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/positions_%d.pdf(",run));
 	c1->Clear(); c1->Divide(2,2);
 	c1->cd(1); h_aero_npe_shms->Draw();
 	c1->cd(2); h_hgcer_npe_shms->Draw();
 	c1->cd(3); h2_aero_hgcer_npe->Draw("colz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/positions_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/positions_%d.pdf",run));
 	c1->Clear(); c1->Divide(2,2);
 	c1->cd(1); h_delta_hms->Draw();
 	c1->cd(2); h_phi_hms->Draw();
 	c1->cd(3); h_theta_hms->Draw();
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/positions_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/positions_%d.pdf",run));
 	c1->Clear(); c1->Divide(2,2);
 	c1->cd(1); h_delta_shms->Draw();
 	c1->cd(2); h_phi_shms->Draw();
 	c1->cd(3); h_theta_shms->Draw();
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/positions_%d.pdf)",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/positions_%d.pdf)",run));
 
 	// kinematics
 	for (int i=2;i<=4;i++){
@@ -792,7 +792,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	h_W[2]->SetLineColor(9); h_W[2]->Draw("HIST");
 	h_W[4]->SetLineColor(2); h_W[4]->Draw("HISTsame");
 	h_W[3]->SetLineColor(8); h_W[3]->Draw("HISTsame");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf(",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf(",run));
 	c1->Clear(); 
 	c1->Divide(2,2); 
 	c1->cd(1); 
@@ -811,7 +811,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	h_elmom[2]->SetLineColor(9); h_elmom[2]->Draw("HIST");
 	h_elmom[4]->SetLineColor(2); h_elmom[4]->Draw("HISTsame");
 	h_elmom[3]->SetLineColor(8); h_elmom[3]->Draw("HISTsame");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 	c1->Clear(); 
 	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
 		c1->Divide(2,2); 
@@ -827,7 +827,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		h_CosThCM[2]->SetLineColor(9); h_CosThCM[2]->Draw("HIST");
 		h_CosThCM[4]->SetLineColor(2); h_CosThCM[4]->Draw("HISTsame");
 		h_CosThCM[3]->SetLineColor(8); h_CosThCM[3]->Draw("HISTsame");
-		c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 		c1->Clear(); 
 	}
 	c1->Divide(2,2); 
@@ -835,7 +835,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(2); h_Xbj[0]->Draw("HIST"); h_Xbj[1]->Draw("HISTsame");
 	c1->cd(3); h_mt[0]->Draw("HIST"); h_mt[1]->Draw("HISTsame");
 	c1->cd(4); h_W[0]->Draw("HIST"); h_W[1]->Draw("HISTsame");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 	c1->Clear(); 
 	c1->Divide(2,2); 
 	c1->cd(1); h_nu[0]->Draw("HIST"); h_nu[1]->Draw("HISTsame");
@@ -843,14 +843,14 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(3); h_Pmom[0]->Draw("HIST");
 	c1->cd(4); h_elmom[0]->Draw("HIST");
 	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
-		c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
+		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 		c1->Clear(); 
 		c1->Divide(2,2); 
 		c1->cd(1); h_Phi[1]->Draw("HIST");
 		c1->cd(2); h_ThCM[1]->Draw("HIST"); 
 		c1->cd(3); h_CosThCM[1]->Draw("HIST");
 	}
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf)",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf)",run));
 	c1->Clear();
 
 	// missing mass...
@@ -863,7 +863,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	h_Emiss[4]->SetLineColor(2); h_Emiss[4]->Draw("E0"); h_Emiss[4]->SetMinimum(0); gPad->SetLogy(0);
 	c1->cd(4); 
 	h_PTmiss[4]->SetLineColor(2); h_PTmiss[4]->Draw("E0"); h_PTmiss[4]->SetMinimum(0); gPad->SetLogy(0);
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf(",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf(",run));
 	c1->Clear();c1->Divide(2,2);
 	c1->cd(1); 
 	h_M2miss[2]->SetLineColor(6); h_M2miss[2]->Draw("HIST"); gPad->SetLogy(0);
@@ -877,7 +877,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(4); 
 	h_PTmiss[2]->SetLineColor(6); h_PTmiss[2]->Draw("HIST"); gPad->SetLogy(0);
 	h_PTmiss[4]->Draw("HISTsame"); h_PTmiss[3]->SetLineColor(8); h_PTmiss[3]->Draw("HISTsame"); //gPad->SetLogy(1);
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));	
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));	
 	c1->Clear(); c1->Divide(2,2);
 	c1->cd(1); 
 	h_PT2miss[4]->SetLineColor(2); h_PT2miss[4]->Draw("E0"); h_PT2miss[4]->SetMinimum(0); gPad->SetLogy(0);
@@ -889,7 +889,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(4); 
 	h_gmom[2]->SetLineColor(6); h_gmom[2]->Draw("HIST"); //gPad->SetLogy(1);
 	h_gmom[4]->Draw("HISTsame"); h_gmom[3]->SetLineColor(8); h_gmom[3]->Draw("HISTsame"); 
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
 	// fit of exclusivity
 	cout<<"fit of missing mass"<<endl;
 	nfounds = 0; npeaks = 0; 
@@ -998,7 +998,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	//	npeaks++;
 	//}
 		
-	out3.open(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/files/missmass2_%d.dat", run));
+	out3.open(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/missmass2_%d.dat", run));
 	cout<<"main mass peaks"<<endl;
 	cout<<"1) mass : "<<pos_mem[0]<<" "<<" peak integral (tot)= "<<int_mem[0]<<" peak index= "<<itag[0]<<" peak max= "<<max_mem[0]<<endl;
 	cout<<"2) mass : "<<pos_mem[1]<<" "<<" peak integral (tot)= "<<int_mem[1]<<" peak index= "<<itag[1]<<" peak max= "<<max_mem[1]<<endl;
@@ -1008,7 +1008,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	out3<<pos_mem[2]<<" "<<" "<<int_mem[2]<<" "<<itag[2]<<" "<<max_mem[2]<<endl;
 	out3.close();
 
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
 
 
 	// kinematics 2D plots
@@ -1018,7 +1018,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(2); h2_XQ2[4]->Draw("HISTcolz");
 	c1->cd(3); h2_Q2mt[4]->Draw("HISTcolz");
 	c1->cd(4); h2_nuep[4]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf(",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf(",run));
 	c1->Clear();
 	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
 		c1->Divide(2,2); 
@@ -1026,7 +1026,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		c1->cd(2); h2_WTh[4]->Draw("HISTcolz");
 		c1->cd(3); h2_ThCMPhi[4]->Draw("HISTcolz");
 		c1->cd(4); h2_mtTh[4]->Draw("HISTcolz");
-		c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 		c1->Clear();
 	}
 	c1->Divide(2,2); 
@@ -1034,14 +1034,14 @@ int ReadHallCData::DrawHist(string process, int run){
 	//c1->cd(2); h2_Pebeta[4]->Draw("HISTcolz"); 
 	c1->cd(3); h2_elemom[4]->Draw("HISTcolz");
 	c1->cd(4); h2_Pemom[4]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->Clear();
 	c1->Divide(2,2); 
 	c1->cd(1); h2_Q2W[2]->Draw("HISTcolz"); 
 	c1->cd(2); h2_XQ2[2]->Draw("HISTcolz");
 	c1->cd(3); h2_Q2mt[2]->Draw("HISTcolz");
 	c1->cd(4); h2_nuep[2]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->Clear();
 	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
 		c1->Divide(2,2); 
@@ -1049,7 +1049,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		c1->cd(2); h2_WTh[2]->Draw("HISTcolz");
 		c1->cd(3); h2_ThCMPhi[2]->Draw("HISTcolz");
 		c1->cd(4); h2_mtTh[2]->Draw("HISTcolz");
-		c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 		c1->Clear();
 	}
 	c1->Divide(2,2); 
@@ -1057,14 +1057,14 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(2); h2_Pebeta[2]->Draw("HISTcolz"); 
 	c1->cd(3); h2_elemom[2]->Draw("HISTcolz");
 	c1->cd(4); h2_Pemom[2]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->Clear();
 	c1->Divide(2,2); 
 	c1->cd(1); h2_Q2W[0]->Draw("HISTcolz"); 
 	c1->cd(2); h2_XQ2[0]->Draw("HISTcolz");
 	c1->cd(3); h2_Q2mt[0]->Draw("HISTcolz");
 	c1->cd(4); h2_nuep[0]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->Clear();
 	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
 		c1->Divide(2,2); 
@@ -1072,7 +1072,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		c1->cd(2); h2_WTh[0]->Draw("HISTcolz");
 		c1->cd(3); h2_ThCMPhi[0]->Draw("HISTcolz");
 		c1->cd(4); h2_mtTh[0]->Draw("HISTcolz");
-		c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
+		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 		c1->Clear();
 	}
 	c1->Divide(2,2); 
@@ -1080,7 +1080,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(2); h2_Pebeta[1]->Draw("HISTcolz"); 
 	c1->cd(3); h2_elemom[0]->Draw("HISTcolz");
 	c1->cd(4); h2_Pemom[0]->Draw("HISTcolz");
-	c1->SaveAs(Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf)",run));
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf)",run));
 
 	return 1;
 

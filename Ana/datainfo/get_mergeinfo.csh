@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-set rep="/home/cdaq/mboer/hallc_replay_vcs/Ana/datainfo"
+set rep="/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo"
 set runlist="${rep}/runlist/runlist.txt"
 
 set run=`more $runlist | awk '{printf $1 " "}'`
