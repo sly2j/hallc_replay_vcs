@@ -2,10 +2,10 @@
 * put cuts for analysis and tree reduction
 * don't change order of the cuts, just the values where it is indicated
 
-* target lenght (10)
+* target lenght (cm)
 10
 
-* Fiducial cuts
+* Fiducial cuts:
 
 * HMS dp lower cut (negative)
 -8.0
@@ -17,7 +17,7 @@
 * SHMS dp upper cut (positive)
 20.0
 
-* Angular cuts
+* Angular cuts:
 
 * HMS theta upper cut
 0.08
@@ -29,19 +29,21 @@
 * SHMS phi upper cut
 0.04
 
-* Timing cuts
-* ROC time lower cut (in absolute time)
-39.5
-* ROC time upper cut (in absolute time)
-49.5
-* time delay (not used)
-44.55
-* Trigger time lower cut (in absolute time)
-20
-* Trigger time upper cut (in absolute time)
-90
+* Timing cuts:
 
-* PID cuts (used as condition for PID, not strict cuts)
+* ROC time lower cut (+/- delay, negative) [don't put less than -13]
+-20
+* ROC time upper cut (+/- delay, positive) [don't put less than -13]
+20
+* time delay (cut at ROC1)
+44.55
+* Trigger time lower cut (+/- delay, negative)
+-50
+* Trigger time upper cut (+/- delay, positive)
+50
+
+* PID cuts (used as condition for PID, not strict cuts):
+
 * HMS calorimeter min energy for electron (if no cut set negative)
 0.4
 * HMS Cherenkov photoelectron min/max (if no cut set negative)
