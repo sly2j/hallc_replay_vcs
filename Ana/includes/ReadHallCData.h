@@ -70,7 +70,7 @@ class ReadHallCData {
    virtual void Loop (vector <string> vector_name, int runID, string  process, string what, string target); 
    int InitHist();
    int DeleteHist();
-   int DrawHist(int);
+   int DrawHist(string , int);
 
    TChain *iChain;
    
@@ -122,6 +122,10 @@ class ReadHallCData {
    TH2F *h2_elebeta[5], *h2_Pebeta[5], *h2_COIN_P_beta[5], *h2_COIN_H_beta[5];
    TH2F *h2_Q2W[5], *h2_XQ2[5], *h2_Q2mt[5], *h2_ThCMPhi[5], *h2_nuep[5], *h2_Q2Th[5], *h2_WTh[5], *h2_mtTh[5];
    TH2F *h2_M2miss_CT1[5], *h2_M2miss_CT2[5];
+
+   TH1F *h_encal_hms, *h_cer_npe_hms, *h_aero_npe_shms, *h_hgcer_npe_shms;
+   TH1F *h_delta_hms, *h_delta_shms, *h_phi_hms, *h_theta_hms, *h_phi_shms, *h_theta_shms;
+   TH2F *h2_encal_cer, *h2_aero_hgcer_npe;
 
    // for tree in  
    double H_gtr_xptar                ;

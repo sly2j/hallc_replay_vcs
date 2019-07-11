@@ -14,6 +14,32 @@ bool IsBadRun(  int runint, int * badruntable
 	return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int ReadHeader(float (&inc)[20]){
+
+	float rr[20];
+	printf("\nread header file ... ");
+	ifstream infile;
+	string ff, line;
+	int test;
+	ff = Form("/home/cdaq/mboer/hallc_replay_vcs/Ana/ANA_CUTS.input");
+	infile.open(ff.c_str());
+	if (!infile) {
+		cout<<"ERROR unable to read header file"<<endl;
+		return 0;
+	}
+        test=0;
+	while (infile.good()){
+	   getline(infile,line);
+	   if ((!( line[0]=='*' || line[1]=='*' || line[2]=='*')) && !line.empty()){
+	          inc[test]=(float) atof(line.c_str());
+	          test++;
+	    }
+	}
+	infile.close();
+
+	return 1;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +96,6 @@ int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmas
 	rq=atof(ssb.c_str());
 	HMS_act_tim = rp;
 	SHMS_act_tim = rq;
-
-	cout<<sa<<" "<<sb<<" "<<ssa<<" "<<ssb<<" "<<rp<<" "<<rq<<endl;
 
 	infile.close();
 	return 1;

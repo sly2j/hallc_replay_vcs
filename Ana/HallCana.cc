@@ -5,15 +5,16 @@ Created July 5th, 2019
 
 #include <iostream>
 #include <string.h>
+//#include "includes/ReduceHallCData.h"
 #include "includes/ReadHallCData.h"
 using namespace std;
 
 int main (int argc, char **argv){
 
-	if (argc<4) {
+	if (argc<6) {
 		cout<<"HELP / use arguments: "<<endl;
 		cout<<"give arguments in following order"<<endl;
-		cout<<"example: ./HallCdata vcs ana LH2 8585 -f ../ROOTfiles/coin_reco_8585_1000000.root"<<endl;
+		cout<<"example: ./HallCana vcs ana LH2 8585 -f /home/cdaq/mboer/hallc_replay_vcs/ROOTfiles/coin_replay_production_8585_10000000.root"<<endl;
 	
 		cout<<"1) Process:"<<endl;
 		cout<<"	  elastic or vcs or pi0"<<endl;
@@ -79,6 +80,8 @@ int main (int argc, char **argv){
      } else if (test=="-f" || test=="-files") {
     
             int nn = 6;
+	    //int nn=5;
+            //for (char **arg=argv+6; *arg; ++arg) {
             for (char **arg=argv+6; *arg; ++arg) {
     
                 string check =  string(*arg); 
@@ -110,13 +113,13 @@ int main (int argc, char **argv){
 	if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0) {
 		cout<<"Analyze hallc coin reco data"<<endl;
 		ReadHallCData RDD;
-		
+		//ReduceHallCData RDD;
 		if (what.compare("ana")==0 || what.compare("reduce")==0){
 			
 			cout<<">> start loop"<<endl;
 			RDD.InitHist();
 			RDD.Loop(filesarg, runID, process, what, target) ;
-			if (what.compare("ana")==0) RDD.DrawHist(runID);
+			if (what.compare("ana")==0) RDD.DrawHist(process, runID);
 			RDD.DeleteHist();
 			cout<<">> no more options"<<endl;
 		}
