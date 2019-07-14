@@ -10,10 +10,12 @@
 *.pdf
 .nfs*
 *.root
+*.o
 
 
 # Directories
 Ana/Results/*.pdf
+Ana/files
 Ana/files/*.dat
 Ana/files/*.txt
 Ana/files/*.root
