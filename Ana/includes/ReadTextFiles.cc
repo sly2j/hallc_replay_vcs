@@ -15,9 +15,9 @@ bool IsBadRun(  int runint, int * badruntable
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int ReadHeader(float (&inc)[20]){
+int ReadHeader(float (&inc)[25]){
 
-	float rr[20];
+	float rr[25];
 	printf("\nread header file ... ");
 	ifstream infile;
 	string ff, line;

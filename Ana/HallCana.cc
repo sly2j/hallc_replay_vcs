@@ -16,10 +16,11 @@ int main (int argc, char **argv){
 		cout<<"example: ./HallCana vcs ana LH2 8585 -f /home/cdaq/mboer/hallc_replay_vcs/ROOTfiles/coin_replay_production_8585_10000000.root"<<endl;
 	
 		cout<<"1) Process:"<<endl;
-		cout<<"	  elastic or vcs or pi0"<<endl;
+		cout<<"	  elastic or vcs or pi0 or pi+ or K+ = setup with e- in SHMS"<<endl;
+		cout<<"	  elasticLT or vcsLT or pi0LT or pi+LT or K+LT = setup with e- in HMS"<<endl;
 	
 		cout<<"2) What to do:"<<endl;
-		cout<<"   ana (create ana histos and root files), reduce (only root files)"<<endl;
+		cout<<"   ana (create ana histograms and root file), reduce (only create root file)"<<endl;
 	
 		cout<<"3) which target: "<<endl;
 		cout<<"LH2 or dummy"<<endl;
@@ -102,7 +103,11 @@ int main (int argc, char **argv){
 	cout<<"Parameters: \n what to do: "<<what<<" \n process: "<<process<<" \n target: "<<target<<endl;
 	
 	
-	if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0) {
+	if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0
+	    || process.compare("elasticLT")==0 || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+	    || process.compare("K+LT")==0 || process.compare("K+")==0 
+	    || process.compare("pi+LT")==0 || process.compare("pi+")==0
+	    ) {
 		cout<<"Analyze hallc coin reco data"<<endl;
 		ReadHallCData RDD;
 		if (what.compare("ana")==0 || what.compare("reduce")==0){

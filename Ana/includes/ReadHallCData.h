@@ -88,34 +88,36 @@ class ReadHallCData {
    int runindex;
    float ALV_el_out_data[4]; 
    float ALV_gamma_out_data[4]; 
+   float ALV_pi_out_data[4]; 
    float ALV_proton_out_data[4]; 
+   float ALV_neutron_out_data[4]; 
    float ALV_el_in_data[4]; 
    float ALV_proton_in_data[4]; 
    float M2miss_data, Mmiss_data, Emiss_data, PTmiss_data, PT2miss_data, Pmiss_ref_data, Thmiss_ref_data; 
    float Q2_data, epsilon_data, Xbj_data, CosThCM_data, ThCM_data, mt_data, nu_data, W_data, Phi_data; 
-   float beta_proton, beta_electron;
+   float beta_HMS, beta_SHMS;
    float Q2_kinmod, epsilon_kinmod, Xbj_kinmod, mt_kinmod, W_kinmod, nu_kinmod;
    float HMS_act_time, SHMS_act_time;
    float time_trig1, time_trig2, time_roc1, time_roc2;
    // files
    ofstream outfile, out2, out3;
    ifstream infile; 
-   float inc[20];
+   float inc[25];
    string line;
    float LL, hdp_low, hdp_up, sdp_low, sdp_up;
    float th_hms_up, phi_hms_up, th_shms_up, phi_shms_up;
-   float hms_cal_en_cut, hms_cer_npe_cut;
+   float hms_cal_en_cut, hms_cer_npe_cut, shms_cal_en_cut;
    float shms_aero_npe_cut, shms_hgcer_npe_cut;
    float trig_time_cut_low, trig_time_cut_up, roc_time_cut_low, roc_time_cut_up, time_shift;
-
+   float hms_beta_min, hms_beta_max, shms_beta_min, shms_beta_max;
    // only in the code
    TLorentzVector LV_virtual, LV_el_out_data, LV_gamma_out_data, LV_proton_out_data, LV_el_in_data, LV_proton_in_data;
    TVector3 V_Normal_Mu, V_Normal_Final;
-   float Egout_CMeP, PinCM;
+   float Egout_CMeP, PinCM, PoutCM;
 
    // histograms
    TH1F *h_CTime_epCoinTime_ROC1[5], *h_CTime_epCoinTime_ROC2[5], *h_CTime_epCoinTime_TRIG1[5], *h_CTime_epCoinTime_TRIG2[5];
-   TH1F *h_Pmom[5], *h_elmom[5], *h_gmom[5];
+   TH1F *h_Pmom[5], *h_elmom[5], *h_gmom[5], *h_CTime_epCoinTime_ROC2_large[5];
    TH1F *h_Mmiss[5], *h_M2miss[5], *h_Emiss[5], *h_PTmiss[5], *h_PT2miss[5]; 
    TH1F *h_Q2[5], *h_epsilon[5], *h_Xbj[5], *h_CosThCM[5], *h_ThCM[5], *h_mt[5], *h_W[5], *h_Phi[5], *h_nu[5]; 
    TH2F *h2_Pemom[5], *h2_elemom[5], *h2_gemom[5];

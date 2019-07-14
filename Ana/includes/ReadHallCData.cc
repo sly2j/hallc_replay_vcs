@@ -24,14 +24,21 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	roc_time_cut_up=inc[10]; time_shift=inc[11];
 	hdp_low=inc[1]; hdp_up=inc[2]; sdp_low=inc[3]; sdp_up=inc[4];
 	th_hms_up=inc[5]; phi_hms_up=inc[6]; th_shms_up=inc[7]; phi_shms_up=inc[8];
-	hms_cal_en_cut=inc[14]; hms_cer_npe_cut=inc[15]; shms_aero_npe_cut=inc[16]; shms_hgcer_npe_cut=inc[17];
+	hms_cal_en_cut=inc[14]; shms_cal_en_cut = inc[15];
+	hms_cer_npe_cut=inc[16]; shms_aero_npe_cut=inc[17]; shms_hgcer_npe_cut=inc[18];
+	hms_beta_min=inc[19]; hms_beta_max=inc[20];
+	shms_beta_min=inc[21]; shms_beta_max=inc[22];
+
 	cout<<"user options: "<<endl;
 	cout<<"target lenght = "<<LL<<", trigger time cut low/up = "<<trig_time_cut_low<<" "<<trig_time_cut_up<<endl;
 	cout<<"roc time cut low/up = "<<roc_time_cut_low<<" "<<roc_time_cut_up<<" time shift = "<<time_shift<<endl;
 	cout<<"dp cut low/up HMS = "<<hdp_low<<" "<<hdp_up<<" SHMS = "<<sdp_low<<" "<<sdp_up<<endl;
 	cout<<"theta & phi cuts up HMS = "<<th_hms_up<<" "<<phi_hms_up<<" SHMS = "<<th_shms_up<<" "<<phi_shms_up<<endl;
-	cout<<"HMS cal energy electron = "<<hms_cal_en_cut<<" HMS Ch npe limit = "<<hms_cer_npe_cut<<endl;
+	cout<<"HMS cal energy electron = "<<hms_cal_en_cut<<" SHMS cal energy electron = "<<shms_cal_en_cut<<endl;
+	cout<<" HMS Ch npe limit = "<<hms_cer_npe_cut<<endl;
 	cout<<"SHMS aerogel npe limit = "<<shms_aero_npe_cut<<" SHMS HGC npe limit = "<<shms_hgcer_npe_cut<<endl;
+	cout<<"HMS beta min, max = "<<hms_beta_min<<" "<<hms_beta_max<<endl;
+	cout<<"SHMS beta min, max = "<<shms_beta_min<<" "<<shms_beta_max<<endl;
 	cout<<"Start producing the new Tree"<<endl;
 	
 	runindex=runID;
@@ -64,20 +71,37 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	cout<<"HMS / SHMS electron efficiency= "<<HMS_E_eff<<" "<<SHMS_E_eff<<endl;
 	cout<<"HMS / SHMS hadron efficiency= "<<HMS_H_eff<<" "<<SHMS_H_eff<<"\n"<<endl;
 	cout<<"Start loop over entries"<<endl;
-
-	lumiexp_HMS = HMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * HMS_act_time * 1000;  
-	lumiexp_SHMS = SHMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * SHMS_act_time * 1000;
-        cout<<"\n*** Measured luminosity HMS / SHMS = "<<lumiexp_HMS<< " "<<lumiexp_SHMS<< " nb"<<endl;  
+	if (target.compare("LH2")==0){
+		lumiexp_HMS = HMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * HMS_act_time * 1000;  
+		lumiexp_SHMS = SHMS_B2_cur_cut * 1e-6 / Ce *LL * rhoH * NA/MH * 1e-36 * SHMS_act_time * 1000;
+	} else if (target.compare("dummy")==0){
+		lumiexp_HMS = HMS_B2_cur_cut * 1e-6 / Ce * 0.1816 * NA/26.9815 * 1e-36 * HMS_act_time * 1000; // check thickness
+		lumiexp_SHMS = SHMS_B2_cur_cut * 1e-6 / Ce * 0.1816 * NA/26.9815 * 1e-36 * SHMS_act_time * 1000;
+	}
+	cout<<"\n*** Measured luminosity HMS / SHMS = "<<lumiexp_HMS<< " "<<lumiexp_SHMS<< " nb"<<endl;  
 
 	TFile *file = new TFile(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/HallCData_%d.root",runID),"RECREATE"); 
         if ( file->IsOpen() ) printf("File opened successfully\n");
 	TTree *HallCTree = new TTree("HallCTree","HallC tree + internal format");
 	gDirectory->ls("-m");
+	
 	HallCTree->Branch("runindex",&runindex, "runindex/I");
         HallCTree->Branch("ALV_el_out_data",&ALV_el_out_data,"ALV_el_out_data[4]/F");
         HallCTree->Branch("ALV_el_in_data",&ALV_el_in_data,"ALV_el_in_data[4]/F");
-        HallCTree->Branch("ALV_gamma_out_data",&ALV_gamma_out_data,"ALV_gamma_out_data[4]/F");
-        HallCTree->Branch("ALV_proton_out_data",&ALV_proton_out_data,"ALV_proton_out_data[4]/F");
+        if (process.compare("vcs")==0 || process.compare("vcsLT")==0 
+	    || process.compare("elastic")==0 || process.compare("elasticLT")==0){
+		HallCTree->Branch("ALV_gamma_out_data",&ALV_gamma_out_data,"ALV_gamma_out_data[4]/F");
+		HallCTree->Branch("ALV_proton_out_data",&ALV_proton_out_data,"ALV_proton_out_data[4]/F");
+	} else if (process.compare("pi0")==0 || process.compare("pi0LT")==0
+		   ){
+		HallCTree->Branch("ALV_pi_out_data",&ALV_pi_out_data,"ALV_pi_out_data[4]/F");
+		HallCTree->Branch("ALV_proton_out_data",&ALV_proton_out_data,"ALV_proton_out_data[4]/F");
+	} else if (process.compare("pi+")==0 || process.compare("pi+LT")==0
+		   || process.compare("K+")==0 || process.compare("K+LT")==0
+		   ){
+		HallCTree->Branch("ALV_pi_out_data",&ALV_pi_out_data,"ALV_pi_out_data[4]/F");
+		HallCTree->Branch("ALV_neutron_out_data",&ALV_neutron_out_data,"ALV_neutron_out_data[4]/F");
+	}
 	HallCTree->Branch("M2miss_data",&M2miss_data,"M2miss_data/F");
 	HallCTree->Branch("Mmiss_data",&Mmiss_data,"Mmiss_data/F");
 	HallCTree->Branch("Emiss_data",&Emiss_data,"Emiss_data/F");
@@ -98,8 +122,8 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	HallCTree->Branch("CosThCM_data", &CosThCM_data,"CosThCM_data/F");
 	HallCTree->Branch("ThCM_data", &ThCM_data,"ThCM_data/F");
 	HallCTree->Branch("Phi_data", &Phi_data,"Phi_data/F");
-	HallCTree->Branch("beta_electron", &beta_electron, "beta_electron/F");
-	HallCTree->Branch("beta_proton", &beta_proton, "beta_proton/F");
+	HallCTree->Branch("beta_SHMS", &beta_SHMS, "beta_SHMS/F");
+	HallCTree->Branch("beta_HMS", &beta_HMS, "beta_HMS/F");
 	HallCTree->Branch("Eb", &Eb, "Eb/F");
 	HallCTree->Branch("targetmass", &targetmass, "targetmass/F");
 	HallCTree->Branch("HMS_p_central", &HMS_p_central, "HMS_p_central/F");
@@ -139,12 +163,13 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	cout<<"out tree init "<<HallCTree->GetEntries()<<endl;
         for (Int_t i=0; i<iChain -> GetEntries(); i++) {
 
-                if (i%5000==0) cout<<"i= "<<i<<endl;
+                if (i%10000==0) cout<<"# "<<i<<endl;
                 entry = iChain->GetEntry(i);
                 if (i==0) cerr<<"enter loop"<<endl;
 		
 		h_CTime_epCoinTime_ROC1[0]->Fill(CTime_epCoinTime_ROC1-time_shift);
 		h_CTime_epCoinTime_ROC2[0]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_ROC2_large[0]->Fill(CTime_epCoinTime_ROC2);
 		h_CTime_epCoinTime_TRIG1[0]->Fill(CTime_epCoinTime_TRIG1-time_shift);
 		h_CTime_epCoinTime_TRIG2[0]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 	
@@ -173,20 +198,64 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		
 		h_CTime_epCoinTime_ROC1[1]->Fill(CTime_epCoinTime_ROC1-time_shift);
 		h_CTime_epCoinTime_ROC2[1]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_ROC2_large[1]->Fill(CTime_epCoinTime_ROC2);
 		h_CTime_epCoinTime_TRIG1[1]->Fill(CTime_epCoinTime_TRIG1-time_shift);
 		h_CTime_epCoinTime_TRIG2[1]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 
 		// PID cuts
-		if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum<hms_cer_npe_cut)) continue; // electron in HMS
-		//if ((hms_cal_en_cut>0 && H_cal_etotnorm>hms_cal_en_cut) || (cer_npe_cut>0 && H_cer_npeSum>hms_cer_npe_cut)) continue; // proton in HMS
-		if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) ) continue;  // pion in SHMS
-		//if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum<shms_hgcer_npe_cut)) continue;  // pion in SHMS
-		//if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum>shms_hgcer_npe_cut)) continue;  // kaon in SHMS
-		//if ((shms_aero_npe_cut>0 && P_aero_npeSum>shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum>shms_hgcer_npe_cut)) continue;  // proton in SHMS
-		//if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum<shms_hgcer_npe_cut)) continue;  // electron in SHMS
+		if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0){
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm>hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum>hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // proton in HMS
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum<shms_hgcer_npe_cut)
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue; // electron in SHMS 
+		} else if (process.compare("elasticLT")==0 || process.compare("vcsLT")==0 || process.compare("pi0LT")==0){
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum<hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // electron in HMS
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum>shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum>shms_hgcer_npe_cut)
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue;  // proton in SHMS
+		} else if (process.compare("pi+LT")==0){
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum<hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // electron in HMS
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) 
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue;  // pion in SHMS
+		} else if (process.compare("K+LT")==0){
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum>shms_hgcer_npe_cut)
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue;  // kaon in SHMS
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum<hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // electron in HMS
+		} else if (process.compare("pi+")==0){
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum<shms_hgcer_npe_cut)
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue; // electron in SHMS 
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum<hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // pi+ in HMS
+		} else if (process.compare("K+")==0){
+			if ((shms_aero_npe_cut>0 && P_aero_npeSum<shms_aero_npe_cut) || (shms_hgcer_npe_cut>0 && P_hgcer_npeSum<shms_hgcer_npe_cut)
+			    || (shms_cal_en_cut>0 && P_cal_etotnorm>shms_cal_en_cut) 
+			    || (shms_beta_min>0 && P_gtr_beta<shms_beta_min) || (shms_beta_max>0 && P_gtr_beta>shms_beta_max)
+			    ) continue; // electron in SHMS 
+			if ((hms_cal_en_cut>0 && H_cal_etotnorm<hms_cal_en_cut) || (hms_cer_npe_cut>0 && H_cer_npeSum>hms_cer_npe_cut)
+			   || (hms_beta_min>0 && H_gtr_beta<hms_beta_min) || (hms_beta_max>0 && H_gtr_beta>hms_beta_max)
+			    ) continue; // kaon+ in HMS
+		}
 
 		h_CTime_epCoinTime_ROC1[2]->Fill(CTime_epCoinTime_ROC1-time_shift);
 		h_CTime_epCoinTime_ROC2[2]->Fill(CTime_epCoinTime_ROC2-time_shift);
+		h_CTime_epCoinTime_ROC2_large[2]->Fill(CTime_epCoinTime_ROC2);
 		h_CTime_epCoinTime_TRIG1[2]->Fill(CTime_epCoinTime_TRIG1-time_shift);
 		h_CTime_epCoinTime_TRIG2[2]->Fill(CTime_epCoinTime_TRIG4-time_shift);
 
@@ -196,8 +265,8 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		h2_COIN_P_beta[2]->Fill(CTime_epCoinTime_ROC1-time_shift,P_gtr_beta);		
 		
 		// allocations to new tree
-		beta_proton = H_gtr_beta; 
-		beta_electron = P_gtr_beta;
+		beta_HMS = H_gtr_beta; 
+		beta_SHMS = P_gtr_beta;
 
    		Q2_kinmod = H_kin_primary_Q2;
       		W_kinmod = H_kin_primary_W;
@@ -212,11 +281,25 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		time_roc2 = CTime_epCoinTime_ROC2;
 
 		// calculation of kinematics and "missing"
-		//LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2)));  // if e in SHMS
-		//LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_Proton,2)));  // if p in HMS
-		//LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(M_Proton,2))); // if P in SHMS
-		LV_el_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(m_el,2))); // if e in HMS 
-		LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(0.139,2))); // if pi+ in SHMS
+		if (process.compare("elastic")==0 || process.compare("vcs")==0 || process.compare("pi0")==0){
+			LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2)));  // if e in SHMS
+			LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_Proton,2)));  // if p in HMS
+		} else if (process.compare("K+")==0){
+			LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2))); 
+			LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_kp,2)));  // if k+ in HMS
+		} else if (process.compare("pi+")==0){
+			LV_el_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(m_el,2))); 
+			LV_proton_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(M_pip,2)));  // if pi+ in HMS
+		} else if (process.compare("pi+LT")==0){
+			LV_el_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(m_el,2))); // if e in HMS 
+			LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(M_pip,2))); // if pi+ in SHMS
+		} else if (process.compare("K+LT")==0){
+			LV_el_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(m_el,2))); // if e in HMS 
+			LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(M_kp,2))); // if k+ in SHMS
+		} else if (process.compare("elasticLT")==0 || process.compare("pi0LT")==0 || process.compare("vcsLT")) {
+			LV_el_out_data.SetPxPyPzE(H_gtr_px, H_gtr_py, H_gtr_pz, sqrt(pow(H_gtr_px,2)+pow(H_gtr_py,2)+pow(H_gtr_pz,2)+pow(m_el,2))); // if e in HMS 
+			LV_proton_out_data.SetPxPyPzE(P_gtr_px, P_gtr_py, P_gtr_pz, sqrt(pow(P_gtr_px,2)+pow(P_gtr_py,2)+pow(P_gtr_pz,2)+pow(M_Proton,2))); // if P in SHMS
+		}
 		LV_proton_in_data.SetPxPyPzE(0,0,0,M_Proton);
 		LV_el_in_data.SetPxPyPzE(0,0,sqrt(pow(Eb,2)-pow(m_el,2)),Eb);
 		LV_virtual.SetPxPyPzE(-LV_el_out_data.Px()+LV_el_in_data.Px(), -LV_el_out_data.Py()+LV_el_in_data.Py(), 
@@ -228,8 +311,10 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		W_data = (LV_proton_in_data+LV_virtual).M();
 		Xbj_data = Q2_data/(2.*M_Proton*LV_virtual.E());
 		nu_data = LV_virtual.E();
-		mt_data = -(LV_proton_in_data-LV_gamma_out_data).M2(); // for pi+ data
-		//mt_data = -(LV_proton_in_data-LV_proton_out_data).M2(); // for VCS and pi0 data
+		if ( process.compare("pi+")==0 || process.compare("pi+LT")==0
+		    || process.compare("K+")==0 || process.compare("K+LT")==0
+		    ) mt_data = -(LV_proton_in_data-LV_gamma_out_data).M2(); // for pi+ data
+		else mt_data = -(LV_proton_in_data-LV_proton_out_data).M2(); // for VCS and pi0 data
 		epsilon_data = pow(1.+2*(pow(LV_virtual.E() ,2)+Q2_data)/Q2_data*pow(tan(LV_el_out_data.Theta()/2.),2),-1);
 
 		M2miss_data= LV_gamma_out_data.M2();
@@ -237,42 +322,73 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		PTmiss_data = LV_gamma_out_data.Perp();
 		PT2miss_data = LV_gamma_out_data.Perp2();
 		Emiss_data = LV_gamma_out_data.E(); // put vs ref
+		
+		h2_M2miss_CT1[0]->Fill(CTime_epCoinTime_ROC1,M2miss_data);
+		h2_M2miss_CT2[0]->Fill(CTime_epCoinTime_ROC2,M2miss_data);
 
-		if (process.compare("elastic")==0){
+		// timing cuts
+		if ((CTime_epCoinTime_ROC2-time_shift)<roc_time_cut_low) continue;
+		if ((CTime_epCoinTime_ROC2-time_shift)>roc_time_cut_up) continue;
+		if ((CTime_epCoinTime_TRIG1-time_shift)<trig_time_cut_low) continue;
+		if ((CTime_epCoinTime_TRIG1-time_shift)>trig_time_cut_up) continue;
+
+		// fill array
+		FillArray_LV(LV_el_out_data, ALV_el_out_data);
+		FillArray_LV(LV_el_in_data, ALV_el_in_data);
+		if (process.compare("elasticLT")==0 || process.compare("elastic")==0
+		    || process.compare("vcs")==0 || process.compare("vcsLT")==0) {
+			FillArray_LV(LV_gamma_out_data, ALV_gamma_out_data);
+			FillArray_LV(LV_proton_out_data, ALV_proton_out_data);
+		} else if (process.compare("pi0LT")==0 || process.compare("pi0")==0){
+			FillArray_LV(LV_proton_out_data, ALV_proton_out_data);
+			FillArray_LV(LV_gamma_out_data, ALV_pi_out_data);
+		} else if (process.compare("pi+LT")==0 || process.compare("pi+")==0
+			   || process.compare("K+")==0 || process.compare("K+LT")==0
+			   ){
+			FillArray_LV(LV_proton_out_data, ALV_pi_out_data);
+			FillArray_LV(LV_gamma_out_data, ALV_neutron_out_data);
+		}
+
+		HallCTree->Fill();
+		if (what.compare("reduce")==0) continue;
+
+		if (process.compare("elastic")==0 || process.compare("elasticLT")==0){
 			Phi_data = 0; CosThCM_data=0; ThCM_data=0;
-		} else if (process.compare("vcs")==0 || process.compare("pi0")==0){ 
+		} else if (process.compare("vcs")==0 || process.compare("pi0")==0  || process.compare("pi+")==0
+			   || process.compare("vcsLT")==0 || process.compare("pi0LT")==0  || process.compare("pi+LT")==0
+			   || process.compare("K+")==0 || process.compare("K+LT")==0
+			   ){ 
 			V_Normal_Mu = (LV_el_in_data.Vect().Cross(LV_el_out_data.Vect())).Unit();
 			V_Normal_Final = (LV_virtual.Vect().Cross(LV_proton_out_data.Vect())).Unit();
 			Phi_data = TMath::ACos(V_Normal_Mu * V_Normal_Final);
 			Phi_data = 360.-Phi_data*180./PI;
 			if ( (V_Normal_Mu *LV_gamma_out_data.Vect()) > 0.) Phi_data = Phi_data;
 			else Phi_data = 360.-Phi_data;
-			Egout_CMeP = (pow(W_data, 2)-pow(M_Proton,2))/(2.*W_data);
 			PinCM = M_Proton*LV_virtual.P()/W_data;
-			//if (process.compare("vcs")==0) CosThCM_data = (-mt_data +Q2_data + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*Egout_CMeP); 
-			//else if (process.compare("pi0")==0) CosThCM_data = (-mt_data +Q2_data -pow(M_piz,2) + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*sqrt(pow(Egout_CMeP,2)-pow(M_piz,2))); 
-			if (process.compare("vcs")==0) CosThCM_data = (-mt_kinmod +Q2_data + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*Egout_CMeP); 
-			else if (process.compare("pi0")==0) CosThCM_data = (-mt_kinmod +Q2_data -pow(M_piz,2) + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*sqrt(pow(Egout_CMeP,2)-pow(M_piz,2))); 
+			if (process.compare("vcs")==0 || process.compare("vcsLT")==0 || process.compare("pi0")==0 || process.compare("pi0LT")==0){
+				if (process.compare("pi0")==0 || process.compare("pi0LT")==0) {
+					Egout_CMeP = (pow(W_data, 2)-pow(M_Proton,2))/(2.*W_data);
+					PoutCM = sqrt(pow(Egout_CMeP,2)-pow(M_piz,2));
+					CosThCM_data = (-mt_data +Q2_data -pow(M_piz,2) + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data))/ (2.*PinCM*PoutCM);
+				} else { 
+					Egout_CMeP = (pow(W_data, 2)-pow(M_Proton,2) + pow(M_piz,2))/(2.*W_data);
+					PoutCM =Egout_CMeP;
+					CosThCM_data = (-mt_data +Q2_data + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data)) / (2.*PinCM*Egout_CMeP);
+				}
+			} else if (process.compare("pi+")==0 || process.compare("pi+LT")==0 || process.compare("K+")==0 || process.compare("K+LT")==0) {
+				if (process.compare("pi+")==0 || process.compare("pi+LT")==0){
+					PoutCM=sqrt( (pow((pow(W_data,2)- pow(M_pip,2) -M_Neutron*M_Neutron),2 )-4.* pow(M_pip,2) *pow(M_Neutron,2))/(4.*pow(W_data,2)));
+					Egout_CMeP=(pow(W_data,2)-pow(M_Neutron,2)+ pow(M_pip,2))/(2.*W_data) ;
+					CosThCM_data = (-mt_data +Q2_data -pow(M_pip,2) + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data))/ (2.*PinCM*PoutCM);
+				} else {
+					PoutCM=sqrt( (pow((pow(W_data,2)- pow(M_kp,2) -M_Neutron*M_Neutron),2 )-4.* pow(M_kp,2) *pow(M_Neutron,2))/(4.*pow(W_data,2)));
+					Egout_CMeP=(pow(W_data,2)-pow(M_Neutron,2)+ pow(M_kp,2))/(2.*W_data) ;
+					CosThCM_data = (-mt_data +Q2_data -pow(M_kp,2) + 2*Egout_CMeP*sqrt(pow(PinCM,2)-Q2_data))/ (2.*PinCM*PoutCM);
+				}
+			}
 			ThCM_data = acos(CosThCM_data)*180./PI;
 
 		}
-		h2_M2miss_CT1[0]->Fill(CTime_epCoinTime_ROC1,M2miss_data);
-		h2_M2miss_CT2[0]->Fill(CTime_epCoinTime_ROC2,M2miss_data);
-
-		// timing cuts
-		if ((CTime_epCoinTime_ROC1-time_shift)<roc_time_cut_low) continue;
-		if ((CTime_epCoinTime_ROC1-time_shift)>roc_time_cut_up) continue;
-		if ((CTime_epCoinTime_TRIG1-time_shift)<trig_time_cut_low) continue;
-		if ((CTime_epCoinTime_TRIG1-time_shift)>trig_time_cut_up) continue;
-
-		// fill array
-		FillArray_LV(LV_el_out_data, ALV_el_out_data);
-		FillArray_LV(LV_proton_out_data, ALV_proton_out_data);
-		FillArray_LV(LV_gamma_out_data, ALV_gamma_out_data);
-		FillArray_LV(LV_el_in_data, ALV_el_in_data);
-
-		HallCTree->Fill();
-		if (what.compare("reduce")==0) continue;
 
 		// no cut, from kinematic module
 		h_Q2[0]->Fill(Q2_kinmod);
@@ -313,7 +429,11 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 		h_PTmiss[1]->Fill(PTmiss_data);
 		h_PT2miss[1]->Fill(PT2miss_data);
 		
-		if (process.compare("vcs")==0 || process.compare("pi0")==0){
+		if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		    ){
 			h2_Q2Th[0]->Fill(Q2_kinmod, ThCM_data);
 			h2_WTh[0]->Fill(W_kinmod, ThCM_data);
 			h2_ThCMPhi[0]->Fill(Phi_data, ThCM_data);
@@ -329,7 +449,7 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 			h_CosThCM[1]->Fill(CosThCM_data);
 		}
 
-		if (fabs(CTime_epCoinTime_ROC1-time_shift)<1.0){
+		if (fabs(CTime_epCoinTime_ROC2-time_shift)<1.0){
 
 			h_Pmom[2]->Fill(LV_proton_out_data.P());
 			h_elmom[2]->Fill(LV_el_out_data.P());
@@ -378,8 +498,13 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 			h2_Pemom[4]->Fill(LV_proton_out_data.E(), LV_proton_out_data.P());
 			h2_elemom[4]->Fill(LV_el_out_data.E(), LV_el_out_data.P());
 			h2_gemom[4]->Fill(LV_gamma_out_data.E(), LV_gamma_out_data.P());
-			
-			if (process.compare("vcs")==0 || process.compare("pi0")==0){
+		
+				
+			if (process.compare("vcs")==0 || process.compare("pi0")==0
+			    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+			    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+			    || process.compare("K+")==0 || process.compare("pi+")==0
+				){
 				h_Phi[2]->Fill(Phi_data);
 				h_ThCM[2]->Fill(ThCM_data);
 				h_CosThCM[2]->Fill(CosThCM_data);
@@ -469,14 +594,15 @@ int ReadHallCData::InitHist(){
 	
 		h_CTime_epCoinTime_ROC1[i] = new TH1F(Form("h_CTime_epCoinTime_ROC1[%d]",i),"coin time roc 1 - delay;time (ns);events", 600, -30, 30);
 		h_CTime_epCoinTime_ROC2[i] = new TH1F(Form("h_CTime_epCoinTime_ROC2[%d]",i),"coin time roc 2 - delay;time (ns);events", 600, -30, 30);
+		h_CTime_epCoinTime_ROC2_large[i] = new TH1F(Form("h_CTime_epCoinTime_ROC2_large[%d]",i),"coin time roc 2 absolute;time (ns);events", 600, 0, 200);
 		h_CTime_epCoinTime_TRIG1[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG1[%d]",i),"trigger 1 time - delay;time (ns);events", 500, -500, 500);
 		h_CTime_epCoinTime_TRIG2[i] = new TH1F(Form("h_CTime_epCoinTime_TRIG2[%d]",i),"trigger 4 time - delay;time (ns);events", 500, -500, 500);
-		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"proton mom.;p_{P} (GeV);events",100,0,4.5);	
-		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"electron mom.;p_{e} (GeV);events",100,0,4.5);	
+		h_Pmom[i] = new TH1F(Form("h_Pmom[%d]",i),"HMS mom.;p_{P} (GeV);events",100,0,4.5);	
+		h_elmom[i] = new TH1F(Form("h_elmom[%d]",i),"SHMS mom.;p_{e} (GeV);events",100,0,4.5);	
 		h_gmom[i] = new TH1F(Form("h_gmom[%d]",i),"missing mom. (g);p_{miss} (GeV);events",100,0,3);	
-		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;E_{miss} (GeV);events",100,-1,1.5);	
+		h_Emiss[i] = new TH1F(Form("h_Emiss[%d]",i),"missing energy;E_{miss} (GeV);events",100,-0.5,1.5);	
 		h_Mmiss[i] = new TH1F(Form("h_Mmiss[%d]",i),"missing mass;M_{miss} (GeV);events",100,-0.5,1.5); // CHANGE!!!	
-		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M^{2}_{miss} (GeV^{2});events",100,0.7,1.2);	
+		h_M2miss[i] = new TH1F(Form("h_M2miss[%d]",i),"missing mass sq;M^{2}_{miss} (GeV^{2});events",100,-0.5,1.5);	
 		h_PTmiss[i] = new TH1F(Form("h_PTmiss[%d]",i),"missing PT;P_{T,miss} (GeV);events",100,0,0.5);	
 		h_PT2miss[i] = new TH1F(Form("h_PT2miss[%d]",i),"missing PT2;P_{T,miss}^{2} (GeV^{2});events",100,0,3);	
 		h_Q2[i] = new TH1F(Form("h_Q2[%d]",i),"Q^{2};Q^{2} (GeV^{2});events", 50, 0, 1);
@@ -502,8 +628,8 @@ int ReadHallCData::InitHist(){
 		h2_elebeta[i] = new TH2F(Form("h2_elebeta[%d]",i),"SHMS #beta vs mom.;E (GeV); #beta",50,0,4.5, 50,0.7, 1.2);
 		h2_COIN_P_beta[i] = new TH2F(Form("h2_COIN_P_beta[%d]",i),"SHMS: #beta vs ROC1 coin time - delay;time (ns); #beta", 600, -30, 30, 50,0.7, 1.2);
 		h2_COIN_H_beta[i] = new TH2F(Form("h2_COIN_H_beta[%d]",i),"HMS: #beta vs ROC1 coin time - delay;time (ns); #beta", 600, -30, 30, 50,0.7, 1.2);
-		h2_Pemom[i] = new TH2F(Form("h2_Pemom[%d]",i),"proton p vs E;E (GeV); p (GeV)",50,0,4.5, 50,0, 4.5);
-		h2_elemom[i] = new TH2F(Form("h2_elemom[%d]",i),"electron p vs E;E (GeV); p (GeV)", 50,0,4.5, 50,0, 4.5);
+		h2_Pemom[i] = new TH2F(Form("h2_Pemom[%d]",i),"HMS p vs E;E (GeV); p (GeV)",50,0,4.5, 50,0, 4.5);
+		h2_elemom[i] = new TH2F(Form("h2_elemom[%d]",i),"SHMS p vs E;E (GeV); p (GeV)", 50,0,4.5, 50,0, 4.5);
 		h2_gemom[i] = new TH2F(Form("h2_gemom[%d]",i),"missing p vs E;E_{miss} (GeV); p_{miss} (GeV)",50,0,4.5, 50,0, 4.5);
 		h2_M2miss_CT1[i] = new TH2F(Form("h2_M2miss_CT1[%d]",i),"missing mass sq vs ROC1 time - delay;time (ns);M^{2}_{miss} (GeV^{2})", 600,-30,30,80,-2,2);
 		h2_M2miss_CT2[i] = new TH2F(Form("h2_M2miss_CT2[%d]",i),"missing mass sq vs ROC2 time - delay;time (ns);M^{2}_{miss} (GeV^{2})", 600,-30,30,80, -2, 2);
@@ -537,27 +663,13 @@ int ReadHallCData::DeleteHist(){
 		h_CTime_epCoinTime_ROC1[i]->Delete();h_CTime_epCoinTime_ROC2[i]->Delete(); h_CTime_epCoinTime_TRIG1[i]->Delete(); h_CTime_epCoinTime_TRIG2[i]->Delete();
 		h_Pmom[i]->Delete();  h_elmom[i]->Delete();  h_gmom[i]->Delete();  h_nu[i]->Delete(); h_Emiss[i]->Delete();  h_Mmiss[i]->Delete();  
 		h_M2miss[i]->Delete();  h_PTmiss[i]->Delete();  h_PT2miss[i]->Delete();   
-		h_Q2[i]->Delete();   h_epsilon[i]->Delete();  h_Xbj[i]->Delete();    
+		h_Q2[i]->Delete();   h_epsilon[i]->Delete();  h_Xbj[i]->Delete();   h_CTime_epCoinTime_ROC2_large[i]->Delete(); 
 		h_CosThCM[i]->Delete();  h_ThCM[i]->Delete();    h_mt[i]->Delete();    h_W[i]->Delete();   h_Phi[i]->Delete(); 
 		h2_Pemom[i]->Delete(); h2_elemom[i]->Delete(); h2_gemom[i]->Delete();
 	}
 	return 1;
 }
 
-////////////////////////////////////////////
-/*int npeaks=30;
-double fpeaks(double *x, double *par){
-	double result=par[0]+par[1]*x[0];
-	double norm, mean, sigma;
-	for (int p=0; p<npeaks;p++){
-		norm = par[3*p+2];
-		mean = par[3*p+3];
-		sigma = par[3*p+4];
-		result += norm*TMath::Gaus(x[0],mean, sigma);
-	}
-	return result;
-}
-*/
 
 ////////////////////////////////////////////
 
@@ -568,6 +680,7 @@ int ReadHallCData::DrawHist(string process, int run){
 	TSpectrum *smass = new TSpectrum(10);
 	int nfounds =0, bin=0, npeaks=0, bmin, bmax;
 	float xp, yp, integral;
+	double gf_par[9], mass_integral[3], mass_sum1s[3];
 	float pos_mem[3]={-1}, int_mem[3]={0}, max_mem[3]={0};
 	int itag[3]={-1};
 	float sum_bkg_up=0, sum_bkg_low=0, sum_bkg_av=0;
@@ -664,6 +777,13 @@ int ReadHallCData::DrawHist(string process, int run){
 	h_CTime_epCoinTime_ROC1[1]->SetLineColor(8); h_CTime_epCoinTime_ROC1[1]->Draw("same");
 	h_CTime_epCoinTime_ROC1[2]->SetLineColor(2); h_CTime_epCoinTime_ROC1[2]->Draw("same");
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
+	h_CTime_epCoinTime_ROC2_large[0]->Draw(); gPad->SetLogy(0); 
+	h_CTime_epCoinTime_ROC2_large[0]->SetMinimum(0);
+	h_CTime_epCoinTime_ROC2_large[1]->SetLineColor(8); h_CTime_epCoinTime_ROC2[1]->Draw("same");
+	h_CTime_epCoinTime_ROC2_large[2]->SetLineColor(2); h_CTime_epCoinTime_ROC2[2]->Draw("same");
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); 
+	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
+	c1->Clear(); c1->cd(1);
 	h_CTime_epCoinTime_TRIG1[0]->Draw(); gPad->SetLogy(1); h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[0]->SetMinimum(1);
 	h_CTime_epCoinTime_TRIG1[1]->SetLineColor(8); h_CTime_epCoinTime_TRIG1[1]->Draw("same");
@@ -735,8 +855,12 @@ int ReadHallCData::DrawHist(string process, int run){
 		//if (!h2_Pemom[i]->GetSumw2N())	h2_Pemom[i]->Sumw2();
 		//if (!h2_gemom[i]->GetSumw2N())	h2_gemom[i]->Sumw2();
 		//if (!h2_elemom[i]->GetSumw2N())	h2_elemom[i]->Sumw2();
-		if (process.compare("vcs")==0 || process.compare("pi0")==0){
-			//if (!h2_ThCMPhi[i]->GetSumw2N()) h2_ThCMPhi[i]->Sumw2();
+		if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
+	    	    //if (!h2_ThCMPhi[i]->GetSumw2N()) h2_ThCMPhi[i]->Sumw2();
 			//if (!h2_mtTh[i]->GetSumw2N()) h2_mtTh[i]->Sumw2();
 			if (!h_Phi[i]->GetSumw2N()) h_Phi[i]->Sumw2();
 			if (!h_ThCM[i]->GetSumw2N()) h_ThCM[i]->Sumw2();
@@ -767,7 +891,11 @@ int ReadHallCData::DrawHist(string process, int run){
 	h2_Pemom[4]->Add(h2_Pemom[3],-1);	
 	h2_gemom[4]->Add(h2_gemom[3],-1);	
 	h2_elemom[4]->Add(h2_elemom[3],-1);	
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		h2_Q2Th[4]->Add(h2_Q2Th[3],-1);	
 		h2_WTh[4]->Add(h2_WTh[3],-1);	
 		h2_ThCMPhi[4]->Add(h2_ThCMPhi[3],-1);	
@@ -784,7 +912,11 @@ int ReadHallCData::DrawHist(string process, int run){
 		h2_Pemom[i]->SetMinimum(1);
 		h2_gemom[i]->SetMinimum(1);
 		h2_elemom[i]->SetMinimum(1);
-		if (process.compare("vcs")==0 || process.compare("pi0")==0){
+		if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 			h2_ThCMPhi[i]->SetMinimum(1);
 			h2_mtTh[i]->SetMinimum(1);
 			h2_Q2Th[i]->SetMinimum(1);
@@ -795,19 +927,19 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->Clear(); 
 	c1->Divide(2,2); 
 	c1->cd(1); 
-	h_Q2[2]->SetLineColor(9); h_Q2[2]->Draw("HIST"); 
+	h_Q2[2]->SetLineColor(9); h_Q2[2]->Draw("HIST"); gPad->SetLogy(0); h_Q2[2]->SetMinimum(0); 
 	h_Q2[4]->SetLineColor(2); h_Q2[4]->Draw("HISTsame");
 	h_Q2[3]->SetLineColor(8); h_Q2[3]->Draw("HISTsame");
 	c1->cd(2); 
-	h_Xbj[2]->SetLineColor(9); h_Xbj[2]->Draw("HIST");
+	h_Xbj[2]->SetLineColor(9); h_Xbj[2]->Draw("HIST"); gPad->SetLogy(0); h_Xbj[2]->SetMinimum(0);
 	h_Xbj[4]->SetLineColor(2); h_Xbj[4]->Draw("HISTsame");
 	h_Xbj[3]->SetLineColor(8); h_Xbj[3]->Draw("HISTsame");
 	c1->cd(3); 
-	h_mt[2]->SetLineColor(9); h_mt[2]->Draw("HIST");
+	h_mt[2]->SetLineColor(9); h_mt[2]->Draw("HIST"); gPad->SetLogy(0); h_mt[2]->SetMinimum(0);
 	h_mt[4]->SetLineColor(2); h_mt[4]->Draw("HISTsame");
 	h_mt[3]->SetLineColor(8); h_mt[3]->Draw("HISTsame");
 	c1->cd(4); 
-	h_W[2]->SetLineColor(9); h_W[2]->Draw("HIST");
+	h_W[2]->SetLineColor(9); h_W[2]->Draw("HIST"); gPad->SetLogy(0); h_W[2]->SetMinimum(0);
 	h_W[4]->SetLineColor(2); h_W[4]->Draw("HISTsame");
 	h_W[3]->SetLineColor(8); h_W[3]->Draw("HISTsame");
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf(",run));
@@ -815,36 +947,40 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->Clear(); 
 	c1->Divide(2,2); 
 	c1->cd(1); 
-	h_nu[2]->SetLineColor(9); h_nu[2]->Draw("HIST");
+	h_nu[2]->SetLineColor(9); h_nu[2]->Draw("HIST"); gPad->SetLogy(0); h_nu[2]->SetMinimum(0);
 	h_nu[4]->SetLineColor(2); h_nu[4]->Draw("HISTsame");
 	h_nu[3]->SetLineColor(8); h_nu[3]->Draw("HISTsame");
 	c1->cd(2); 
-	h_epsilon[2]->SetLineColor(9); h_epsilon[2]->Draw("HIST");
+	h_epsilon[2]->SetLineColor(9); h_epsilon[2]->Draw("HIST"); gPad->SetLogy(0); h_epsilon[2]->SetMinimum(0);
 	h_epsilon[4]->SetLineColor(2); h_epsilon[4]->Draw("HISTsame");
 	h_epsilon[3]->SetLineColor(8); h_epsilon[3]->Draw("HISTsame");
 	c1->cd(3); 
-	h_Pmom[2]->SetLineColor(9); h_Pmom[2]->Draw("HIST");
+	h_Pmom[2]->SetLineColor(9); h_Pmom[2]->Draw("HIST"); gPad->SetLogy(0); h_Pmom[2]->SetMinimum(0);
 	h_Pmom[4]->SetLineColor(2); h_Pmom[4]->Draw("HISTsame");
 	h_Pmom[3]->SetLineColor(8); h_Pmom[3]->Draw("HISTsame");
 	c1->cd(4); 
-	h_elmom[2]->SetLineColor(9); h_elmom[2]->Draw("HIST");
+	h_elmom[2]->SetLineColor(9); h_elmom[2]->Draw("HIST"); gPad->SetLogy(0); h_elmom[2]->SetMinimum(0);
 	h_elmom[4]->SetLineColor(2); h_elmom[4]->Draw("HISTsame");
 	h_elmom[3]->SetLineColor(8); h_elmom[3]->Draw("HISTsame");
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
 	c1->Clear(); 
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		c1->Divide(2,2); 
 		c1->cd(1); 
-		h_Phi[2]->SetLineColor(9); h_Phi[2]->Draw("HIST");
+		h_Phi[2]->SetLineColor(9); h_Phi[2]->Draw("HIST"); gPad->SetLogy(0); h_Phi[2]->SetMinimum(0);
 		h_Phi[4]->SetLineColor(2); h_Phi[4]->Draw("HISTsame");
 		h_Phi[3]->SetLineColor(8); h_Phi[3]->Draw("HISTsame");
 		c1->cd(2); 
-		h_ThCM[2]->SetLineColor(9); h_ThCM[2]->Draw("HIST");
+		h_ThCM[2]->SetLineColor(9); h_ThCM[2]->Draw("HIST"); gPad->SetLogy(0); h_ThCM[2]->SetMinimum(0);
 		h_ThCM[4]->SetLineColor(2); h_ThCM[4]->Draw("HISTsame");
 		h_ThCM[3]->SetLineColor(8); h_ThCM[3]->Draw("HISTsame");
 		c1->cd(3); 
-		h_CosThCM[2]->SetLineColor(9); h_CosThCM[2]->Draw("HIST");
+		h_CosThCM[2]->SetLineColor(9); h_CosThCM[2]->Draw("HIST"); gPad->SetLogy(0); h_CosThCM[2]->SetMinimum(0);
 		h_CosThCM[4]->SetLineColor(2); h_CosThCM[4]->Draw("HISTsame");
 		h_CosThCM[3]->SetLineColor(8); h_CosThCM[3]->Draw("HISTsame");
 		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
@@ -852,7 +988,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		c1->Clear(); 
 	}
 	c1->Divide(2,2); 
-	c1->cd(1); h_Q2[0]->Draw("HIST");  h_Q2[1]->Draw("HISTsame");
+	c1->cd(1); h_Q2[0]->Draw("HIST");  h_Q2[1]->Draw("HISTsame"); 
 	c1->cd(2); h_Xbj[0]->Draw("HIST"); h_Xbj[1]->Draw("HISTsame");
 	c1->cd(3); h_mt[0]->Draw("HIST"); h_mt[1]->Draw("HISTsame");
 	c1->cd(4); h_W[0]->Draw("HIST"); h_W[1]->Draw("HISTsame");
@@ -863,7 +999,11 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(2); h_epsilon[0]->Draw("HIST"); h_epsilon[1]->Draw("HISTsame");
 	c1->cd(3); h_Pmom[0]->Draw("HIST");
 	c1->cd(4); h_elmom[0]->Draw("HIST");
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics_%d.pdf",run));
 		c1->Clear(); 
 		c1->Divide(2,2); 
@@ -877,40 +1017,40 @@ int ReadHallCData::DrawHist(string process, int run){
 	// missing mass...
 	c1->Clear();c1->Divide(2,2);
 	c1->cd(1); 
-	h_M2miss[4]->SetLineColor(2); h_M2miss[4]->Draw("E0"); h_M2miss[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_M2miss[4]->SetLineColor(2); h_M2miss[4]->Draw("E0"); gPad->SetLogy(0); h_M2miss[4]->SetMinimum(0); 
 	c1->cd(2); 
-	h_Mmiss[4]->SetLineColor(2); h_Mmiss[4]->Draw("E0"); h_Mmiss[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_Mmiss[4]->SetLineColor(2); h_Mmiss[4]->Draw("E0");gPad->SetLogy(0); h_Mmiss[4]->SetMinimum(0);
 	c1->cd(3); 
-	h_Emiss[4]->SetLineColor(2); h_Emiss[4]->Draw("E0"); h_Emiss[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_Emiss[4]->SetLineColor(2); h_Emiss[4]->Draw("E0"); gPad->SetLogy(0); h_Emiss[4]->SetMinimum(0); 
 	c1->cd(4); 
-	h_PTmiss[4]->SetLineColor(2); h_PTmiss[4]->Draw("E0"); h_PTmiss[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_PTmiss[4]->SetLineColor(2); h_PTmiss[4]->Draw("E0"); gPad->SetLogy(0); h_PTmiss[4]->SetMinimum(0);
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf(",run));
 	c1->Clear();c1->Divide(2,2);
 	c1->cd(1); 
-	h_M2miss[2]->SetLineColor(6); h_M2miss[2]->Draw("HIST"); gPad->SetLogy(0);
-	h_M2miss[4]->Draw("HISTsame"); h_M2miss[3]->SetLineColor(8); h_M2miss[3]->Draw("HISTsame"); //gPad->SetLogy(1);
+	h_M2miss[2]->SetLineColor(6); h_M2miss[2]->Draw("HIST"); gPad->SetLogy(0); h_M2miss[2]->SetMinimum(0);
+	h_M2miss[4]->Draw("HISTsame"); h_M2miss[3]->SetLineColor(8); h_M2miss[3]->Draw("HISTsame");
 	c1->cd(2); 
-	h_Mmiss[2]->SetLineColor(6); h_Mmiss[2]->Draw("HIST"); gPad->SetLogy(0);
-	h_Mmiss[4]->Draw("HISTsame"); h_Mmiss[3]->SetLineColor(8); h_Mmiss[3]->Draw("HISTsame"); //gPad->SetLogy(1);
+	h_Mmiss[2]->SetLineColor(6); h_Mmiss[2]->Draw("HIST"); gPad->SetLogy(0); h_Mmiss[2]->SetMinimum(0);
+	h_Mmiss[4]->Draw("HISTsame"); h_Mmiss[3]->SetLineColor(8); h_Mmiss[3]->Draw("HISTsame"); 
 	c1->cd(3); 
-	h_Emiss[2]->SetLineColor(6); h_Emiss[2]->Draw("HIST"); gPad->SetLogy(0);
-	h_Emiss[4]->Draw("HISTsame"); h_Emiss[3]->SetLineColor(8); h_Emiss[3]->Draw("HISTsame"); //gPad->SetLogy(1);
+	h_Emiss[2]->SetLineColor(6); h_Emiss[2]->Draw("HIST"); gPad->SetLogy(0); h_Emiss[2]->SetMinimum(0);
+	h_Emiss[4]->Draw("HISTsame"); h_Emiss[3]->SetLineColor(8); h_Emiss[3]->Draw("HISTsame"); 
 	c1->cd(4); 
-	h_PTmiss[2]->SetLineColor(6); h_PTmiss[2]->Draw("HIST"); gPad->SetLogy(0);
-	h_PTmiss[4]->Draw("HISTsame"); h_PTmiss[3]->SetLineColor(8); h_PTmiss[3]->Draw("HISTsame"); //gPad->SetLogy(1);
+	h_PTmiss[2]->SetLineColor(6); h_PTmiss[2]->Draw("HIST"); gPad->SetLogy(0); h_PTmiss[2]->SetMinimum(0);
+	h_PTmiss[4]->Draw("HISTsame"); h_PTmiss[3]->SetLineColor(8); h_PTmiss[3]->Draw("HISTsame"); 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));	
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.root",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
 	c1->Clear(); c1->Divide(2,2);
 	c1->cd(1); 
-	h_PT2miss[4]->SetLineColor(2); h_PT2miss[4]->Draw("E0"); h_PT2miss[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_PT2miss[4]->SetLineColor(2); h_PT2miss[4]->Draw("E0"); gPad->SetLogy(0); h_PT2miss[4]->SetMinimum(0);
 	c1->cd(2); 
-	h_gmom[4]->SetLineColor(2); h_gmom[4]->Draw("E0");h_gmom[4]->SetMinimum(0); gPad->SetLogy(0);
+	h_gmom[4]->SetLineColor(2); h_gmom[4]->Draw("E0"); gPad->SetLogy(0); h_gmom[4]->SetMinimum(0);
 	c1->cd(3); 
-	h_PT2miss[2]->SetLineColor(6); h_PT2miss[2]->Draw("HIST"); // gPad->SetLogy(1);
+	h_PT2miss[2]->SetLineColor(6); h_PT2miss[2]->Draw("HIST");  gPad->SetLogy(0);
 	h_PT2miss[4]->Draw("HISTsame"); h_PT2miss[3]->SetLineColor(8); h_PT2miss[3]->Draw("HISTsame"); 
 	c1->cd(4); 
-	h_gmom[2]->SetLineColor(6); h_gmom[2]->Draw("HIST"); //gPad->SetLogy(1);
+	h_gmom[2]->SetLineColor(6); h_gmom[2]->Draw("HIST"); gPad->SetLogy(0); h_gmom[2]->SetMinimum(0);
 	h_gmom[4]->Draw("HISTsame"); h_gmom[3]->SetLineColor(8); h_gmom[3]->Draw("HISTsame"); 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
@@ -965,13 +1105,13 @@ int ReadHallCData::DrawHist(string process, int run){
 		}
 	   }
 	}
-	/*
-	TF1 *fgaus =new TF1("fgaus","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",0.9,1.05);// pos_mem[0]-0.1,pos_mem[0]+0.1);
-	//TF1 *fgaus2 =new TF1("fgaus2","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",-0.2,1.2);// pos_mem[0]-0.1,pos_mem[0]+0.1);
-	//TF1 *fgaus3 =new TF1("fgaus2","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])",-0.2,1.2);// pos_mem[0]-0.1,pos_mem[0]+0.1);
-	fgaus->SetParameter(0,max_mem[0]*1.01); 
+	
+	TF1 *fgaus =new TF1("fgaus","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])", pos_mem[0]-0.1,pos_mem[0]+0.1);
+	TF1 *fgaus2 =new TF1("fgaus2","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])", pos_mem[1]-0.1,pos_mem[1]+0.1);
+	TF1 *fgaus3 =new TF1("fgaus3","[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2])", pos_mem[2]-0.1,pos_mem[2]+0.1);
+	fgaus->SetParameter(0,max_mem[0]); 
 	fgaus->SetParameter(1,pos_mem[0]); 
-	fgaus->SetParameter(2,0.005*1.01); 
+	fgaus->SetParameter(2,0.005); 
 	fgaus->SetParLimits(1,pos_mem[0]-0.015,pos_mem[0]+0.015);
 	fgaus->SetParLimits(0,max_mem[0]/3.,max_mem[0]*2);
 	fgaus->SetParLimits(2,0.0001, 0.1);
@@ -981,7 +1121,7 @@ int ReadHallCData::DrawHist(string process, int run){
 		fgaus2->SetParameter(2,0.005); 
 		fgaus2->SetParLimits(1,pos_mem[1]-0.015,pos_mem[1]+0.015);
 		fgaus2->SetParLimits(0,max_mem[1]/3.,max_mem[1]*2);
-		fgaus2->SetParLimits(2,0.001, 0.1);
+		fgaus2->SetParLimits(2,0.0001, 0.1);
 	}	
 	if (nfounds>2){
 		fgaus3->SetParameter(0,max_mem[2]); 
@@ -989,47 +1129,54 @@ int ReadHallCData::DrawHist(string process, int run){
 		fgaus3->SetParameter(2,0.005); 
 		fgaus3->SetParLimits(1,pos_mem[2]-0.015,pos_mem[2]+0.015);
 		fgaus3->SetParLimits(0,max_mem[2]/3.,max_mem[2]*2);
-		fgaus3->SetParLimits(2,0.001, 0.1);
-	}*/
-	/*	
-	hM->Fit("fgaus", "");
-	//hM->Fit("fgaus", "ER");
+		fgaus3->SetParLimits(2,0.0001, 0.1);
+	}
+		
+	hM->Fit("fgaus", "ER");
 	fgaus->Draw("same");
-	double gf_par[3];
 	gf_par[0] = (float) fgaus->GetParameter(0);
 	gf_par[1] = (float) fgaus->GetParameter(1);
 	gf_par[2] = (float) fgaus->GetParameter(2);
 	//integral =(float) fgaus->Integral((double) (gf_par[1]-3*gf_par[2]), (double) (gf_par[1]+3*gf_par[2]), 1e-6);
-	integral = gf_par[0]*sqrt(PI*(2.*pow(gf_par[2],2))) ;
-	integral *= 1./((gf_par[1]+3*gf_par[2])-(gf_par[1]-3*gf_par[2]));
-	cout<<" gaus mmass fit par "<<gf_par[0]<<" "<<gf_par[1]<<" "<<gf_par[2]<< " 3sig integral "<<integral<<endl;
-		
 	bmin = hM->GetXaxis()->FindBin((gf_par[1]-gf_par[2]));
 	bmax = hM->GetXaxis()->FindBin((gf_par[1]+gf_par[2]));
-	if (bmin>0 && bmax<hM->GetSize()-2) integral = hM->Integral(bmin,bmax);
-	cout<<" sum 1 sigm "<<integral<<endl;
-	*/
-	//fgaus->SetParLimits(2,0.1,1);
-	//h_CTime_epCoinTime_ROC1[2]->Fit("fgaus","B");	
-	//for (int p=0;p<nfounds;p++){
-	//	xp=xpeaks[p];
-	//	bin=h_CTime_epCoinTime_ROC1[2]->GetXaxis()->FindBin(xp);
-	//	yp=h_CTime_epCoinTime_ROC1[2]->GetBinContent(bin);
-	//	par[3*npeaks+2]=yp;
-	//	par[3*npeaks+3]=xp;
-	//	par[3*npeaks+4]=3;
-	//	cout<<"peak position: "<<xp<< " peak height "<<yp<<endl;
-	//	npeaks++;
-	//}
-		
+	mass_integral[0] = gf_par[0]*sqrt(PI*(2.*pow(gf_par[2],2)))/0.02; // adjust bin width of hM
+	if (bmin>0 && bmax<hM->GetSize()-2) mass_sum1s[0] = hM->Integral(bmin,bmax)/0.68;
+	cout<<" gaus mmass fit par "<<gf_par[0]<<" "<<gf_par[1]<<" "<<gf_par[2]<< " 3sig integral "<<mass_integral[0]<<" sum 1 sigm "<<mass_sum1s[0]<<endl;
+	
+	if (nfounds>1){
+		hM->Fit("fgaus2", "ER");
+		fgaus3->Draw("same");
+		gf_par[3] = (float) fgaus2->GetParameter(0);
+		gf_par[4] = (float) fgaus2->GetParameter(1);
+		gf_par[5] = (float) fgaus2->GetParameter(2);
+		bmin = hM->GetXaxis()->FindBin((gf_par[4]-gf_par[5]));
+		bmax = hM->GetXaxis()->FindBin((gf_par[4]+gf_par[5]));
+		mass_integral[1] = gf_par[3]*sqrt(PI*(2.*pow(gf_par[5],2))) / 0.02;
+		if (bmin>0 && bmax<hM->GetSize()-2) mass_sum1s[1] = hM->Integral(bmin,bmax)/0.68;
+		cout<<" gaus mmass fit par "<<gf_par[3]<<" "<<gf_par[4]<<" "<<gf_par[5]<< " 3sig integral "<<mass_integral[1]<<" sum 1 sigm "<<mass_sum1s[1]<<endl;
+	}
+	if (nfounds>2){
+		hM->Fit("fgaus3", "ER");
+		fgaus3->Draw("same");
+		gf_par[6] = (float) fgaus2->GetParameter(0);
+		gf_par[7] = (float) fgaus2->GetParameter(1);
+		gf_par[8] = (float) fgaus2->GetParameter(2);
+		bmin = hM->GetXaxis()->FindBin((gf_par[7]-gf_par[8]));
+		bmax = hM->GetXaxis()->FindBin((gf_par[7]+gf_par[8]));
+		mass_integral[2] = gf_par[6]*sqrt(PI*(2.*pow(gf_par[8],2))) / 0.02;
+		if (bmin>0 && bmax<hM->GetSize()-2) mass_sum1s[2] = hM->Integral(bmin,bmax)/0.68;
+		cout<<" gaus mmass fit par "<<gf_par[6]<<" "<<gf_par[7]<<" "<<gf_par[8]<< " 3sig integral "<<mass_integral[2]<<" sum 1 sigm "<<mass_sum1s[2]<<endl;
+	}
+	
 	out3.open(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/missmass2_%d.dat", run));
 	cout<<"main mass peaks"<<endl;
-	cout<<"1) mass : "<<pos_mem[0]<<" "<<" peak integral (tot)= "<<int_mem[0]<<" peak index= "<<itag[0]<<" peak max= "<<max_mem[0]<<endl;
-	cout<<"2) mass : "<<pos_mem[1]<<" "<<" peak integral (tot)= "<<int_mem[1]<<" peak index= "<<itag[1]<<" peak max= "<<max_mem[1]<<endl;
-	cout<<"3) mass : "<<pos_mem[2]<<" "<<" peak integral (tot)= "<<int_mem[2]<<" peak index= "<<itag[2]<<" peak max= "<<max_mem[2]<<endl;
-	out3<<pos_mem[0]<<" "<<" "<<int_mem[0]<<" "<<itag[0]<<" "<<max_mem[0]<<endl;
-	out3<<pos_mem[1]<<" "<<" "<<int_mem[1]<<" "<<itag[1]<<" "<<max_mem[1]<<endl;
-	out3<<pos_mem[2]<<" "<<" "<<int_mem[2]<<" "<<itag[2]<<" "<<max_mem[2]<<endl;
+	cout<<"1) mass : "<<pos_mem[0]<<" "<<" peak sum (tot)= "<<int_mem[0]<<" "<<mass_integral[0]<<" "<<mass_sum1s[0]<<" peak index= "<<itag[0]<<" peak max= "<<max_mem[0]<<endl;
+	cout<<"2) mass : "<<pos_mem[1]<<" "<<" peak sum (tot)= "<<int_mem[1]<<" "<<mass_integral[1]<<" "<<mass_sum1s[1]<<" peak index= "<<itag[1]<<" peak max= "<<max_mem[1]<<endl;
+	cout<<"3) mass : "<<pos_mem[2]<<" "<<" peak sum (tot)= "<<int_mem[2]<<" "<<mass_integral[2]<<" "<<mass_sum1s[2]<<" peak index= "<<itag[2]<<" peak max= "<<max_mem[2]<<endl;
+	out3<<pos_mem[0]<<" "<<mass_integral[0]<<" "<<endl;
+	out3<<pos_mem[1]<<" "<<mass_integral[1]<<" "<<endl;
+	out3<<pos_mem[2]<<" "<<mass_integral[2]<<" "<<endl;
 	out3.close();
 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
@@ -1046,7 +1193,11 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf(",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
 	c1->Clear();
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		c1->Divide(2,2); 
 		c1->cd(1); h2_Q2Th[4]->Draw("HISTcolz"); 
 		c1->cd(2); h2_WTh[4]->Draw("HISTcolz");
@@ -1057,8 +1208,6 @@ int ReadHallCData::DrawHist(string process, int run){
 		c1->Clear();
 	}
 	c1->Divide(2,1); 
-	//c1->cd(1); h2_elebeta[4]->Draw("HISTcolz"); 
-	//c1->cd(2); h2_Pebeta[4]->Draw("HISTcolz"); 
 	c1->cd(1); h2_elemom[4]->Draw("HISTcolz");
 	c1->cd(2); h2_Pemom[4]->Draw("HISTcolz");
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
@@ -1072,7 +1221,11 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
 	c1->Clear();
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		c1->Divide(2,2); 
 		c1->cd(1); h2_Q2Th[2]->Draw("HISTcolz"); 
 		c1->cd(2); h2_WTh[2]->Draw("HISTcolz");
@@ -1097,7 +1250,11 @@ int ReadHallCData::DrawHist(string process, int run){
 	c1->cd(4); h2_nuep[0]->Draw("HISTcolz");
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/kinematics2D_%d.pdf",run));
 	c1->Clear();
-	if (process.compare("pi0")==0 || process.compare("vcs")==0){	
+	if (process.compare("vcs")==0 || process.compare("pi0")==0
+		    || process.compare("vcsLT")==0 || process.compare("pi0LT")==0
+		    || process.compare("pi+LT")==0 || process.compare("K+LT")==0
+		    || process.compare("K+")==0 || process.compare("pi+")==0
+		){	
 		c1->Divide(2,2); 
 		c1->cd(1); h2_Q2Th[0]->Draw("HISTcolz"); 
 		c1->cd(2); h2_WTh[0]->Draw("HISTcolz");
