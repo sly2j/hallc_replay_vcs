@@ -12,10 +12,11 @@ Steps before running this code:
 4) Then run the code as decribed below
 
 > The will create:
-- 4 pdf files with monitoring figures in the Result directory (if "ana" option is called). files are:
-  exclusivity_(index).pdf, cointime_(index).pdf, kinematics_(index).pdf, kinematics2D_(index).pdf
-- a root file of reduced data with 4-vectors in the files directory: files/HallCData_(index).root,
-- a text file timing_(index).dat containing charge information in the files directory
+- 1 monitoring pdf file ana_monitor_(index).pdf in the "Results"
+- 5 pdf files with deeper monitoring figures in the "Results" directory (if "ana" option is called). files are:
+  exclusivity_(index).pdf, cointime_(index).pdf, kinematics_(index).pdf, kinematics2D_(index).pdf, positions_(index).pdf
+- a root file of reduced data with 4-vectors in the "files" directory: files/HallCData_(index).root,
+- 3 text files timing_(index).dat, missmass2_(index).dat, lumi_(index).dat containing information to build database in the "files" directory.
 
 ---------------------------------------------------------
 
@@ -34,7 +35,8 @@ example: ./HallCana vcs ana LH2 8585 -f /home/cdaq/vcs2019/hallc_replay_vcs/ROOT
 Arguments options are:
 
 1) Process:
-	  elastic or vcs or pi0
+	  elastic or vcs or pi0 or pi+ or K+ = run setup with electron in SHMS
+	  elasticLT or vcsLT or pi0LT or pi+LT or K+LT = run setup with electron in HMS
 
 2) What to do:
    ana (create ana histos and root files), reduce (only root files)
