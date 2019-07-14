@@ -2,10 +2,16 @@
 * put cuts for analysis and tree reduction
 * don't change order of the cuts, just the values where it is indicated
 
+**********************
+* General parameters *
+**********************
+
 * target lenght (cm)
 10
 
-* Fiducial cuts:
+*****************
+* Fiducial cuts *
+*****************
 
 * HMS dp lower cut (negative)
 -8.0
@@ -14,6 +20,7 @@
 
 * SHMS dp lower cut (negative)
 -10.0
+
 * SHMS dp upper cut (positive)
 20.0
 
@@ -21,37 +28,67 @@
 
 * HMS theta upper cut
 0.08
+
 * HMS phi upper cut
 0.045
 
 * SHMS theta upper cut
 0.06
+
 * SHMS phi upper cut
 0.04
 
-* Timing cuts:
+*****************************************
+* Timing cuts				*
+*****************************************
 
 * ROC (1 & 2) time lower cut (+/- delay, negative) [don't put less than -13]
 -20
 * ROC (1 & 2) time upper cut (+/- delay, positive) [don't put less than -13]
 20
-* time delay (cut at ROC1)
+* time delay (cut at ROC2)
 * 44.55 < proton peak LT data
-39.15
+*44.02
+ 39.15
 * Trigger time lower cut (+/- delay, negative)
--1000
+-10000
 * Trigger time upper cut (+/- delay, positive)
-1000
+10000
 
-* PID cuts (used as condition for PID, not strict cuts):
+*********************************************************
+* PID cuts (used as condition for PID, not strict cuts) *
+*********************************************************
 
 * HMS calorimeter min energy for electron (if no cut set negative)
 0.4
+
+* SHMS calorimeter min energy for electron (if no cut set negative)
+-1
+*0.4
+
 * HMS Cherenkov photoelectron min/max (if no cut set negative)
 1.5
+
 * SHMS aerogel photoelectron min/max (if no cut set negative)
 1.5
+
 * SHMS heavy gas Ch photoelectron min/max (if no cut set negative)
 1.5
+
+* beta min HMS (if no cut set negative)
+-1
+*0.45
+
+* beta max HMS (if no cut set negative / can be above 1 for resolution)
+-1
+*0.85
+
+* beta min SHMS (if no cut set negative)
+*.8
+-1
+
+* beta max SHMS (if no cut set negative / can be above 1 for resolution)
+*1.2
+-1
 
 
