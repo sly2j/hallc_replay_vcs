@@ -12,7 +12,7 @@ source setup.csh
 /bin/cp REPORT_OUTPUT/COIN/PRODUCTION/replay_coin_production_${run}_${ev}.report Ana/datainfo/savedreports/ 
 echo $run >> Ana/datainfo/runlist/runlist.txt
 /home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/get_runinfo.csh ${run} ${ev}
-/home/cdaq/vcs2019/hallc_replay_vcs/Ana/HallCana "${proc}" "ana" "${target}" "${run}" -f "/home/cdaq/vcs2019/hallc_replay_vcs/ROOTfiles/coin_replay_production_${run}_${ev}.root"
+/home/cdaq/vcs2019/hallc_replay_vcs/Ana/HallCana "${proc}" "ana" "${target}" "${run}" -f /home/cdaq/vcs2019/hallc_replay_vcs/ROOTfiles/coin_replay_production_${run}_${ev}.root
 echo "more lumi_${run}.dat: "
 more /home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/lumi_${run}.dat
 echo "more timing_${run}.dat: "
