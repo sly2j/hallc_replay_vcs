@@ -6,7 +6,7 @@
 * General parameters *
 **********************
 
-* target lenght (cm)
+* target lenght (for LH2 only) (cm)
 10
 
 *****************
@@ -46,10 +46,11 @@
 -20
 * ROC (1 & 2) time upper cut (+/- delay, positive) [don't put less than -13]
 20
-* time delay (cut at ROC2)
-* 44.55 < proton peak LT data
-*44.02
- 39.15
+
+* Coincidence time for the main physics peak (cut at ROC2)
+* example: 44.55 ns for one run of proton peak LT data
+44.55
+
 * Trigger time lower cut (+/- delay, negative)
 -10000
 * Trigger time upper cut (+/- delay, positive)
