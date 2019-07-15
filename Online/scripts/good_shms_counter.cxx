@@ -29,15 +29,15 @@ struct RDFInfo {
 // =================================================================================
 // Cuts - online:
 //    (1) make sure that the phi/theta/y cuts are sensible
-//    (2) Calorimeter cut should be fine,
+//    (2) Make sure hadron PID cuts are as desided
 //        make sure the Cherenkov cut is strict enough
 // =================================================================================
-std::string goodTrack = "H.gtr.dp > -8 && H.gtr.dp < 8 &&"
-                        "-0.08 < H.gtr.th && H.gtr.th < 0.06 && "
-                        "-0.03 < H.gtr.ph && H.gtr.ph < 0.04"
-                        "&& TMath::Abs(H.gtr.y) < 2.0";
-std::string electronCut = "H.cal.etottracknorm > 0.80 && H.cal.etottracknorm < 2.&&"
-                          "H.cer.npeSum > 1.";
+std::string goodTrack = "P.gtr.dp > -10 && P.gtr.dp < 22 &&"
+                        "-0.05 < P.gtr.th && P.gtr.th < 0.05 && "
+                        "-0.035 < P.gtr.ph && P.gtr.ph < 0.025"
+                        "&& P.gtr.y > -2.0 && P.gtr.y < 3.0";
+std::string hadronCut = "P.cal.etottracknorm < 0.80 &&"
+                        "P.hgcer.npeSum < 0.1";
 
 // =================================================================================
 // Utility function to return the first good root file for this run
@@ -61,11 +61,11 @@ std::string get_root_file(std::vector<std::string> file_names) {
   return "";
 }
 
-int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& mode = "coin",
-                     int update = 1) {
+int good_shms_counter(int RunNumber = 8585, int nevents = -1, const std::string& mode = "coin",
+                      int update = 1) {
   // Sanity check the input
-  if (mode != "coin" && mode != "hms") {
-    std::cerr << "error: please specify a valid mode, either 'coin' or 'hms'" << std::endl;
+  if (mode != "coin" && mode != "shms") {
+    std::cerr << "error: please specify a valid mode, either 'coin' or 'shms'" << std::endl;
     return -127;
   }
 
@@ -98,18 +98,18 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   // ==========================================================================================
   // Get the pre-scaler info from the database
   // ==========================================================================================
-  // was this data taken with ps3 or ps4 or coin?
-  int  ps3             = -1;    // HMS ELREAL
-  int  ps4             = -1;    // HMS 3/4
+  // was this data taken with ps1 or ps2 or coin?
+  int  ps1             = -1;    // SHMS 3/4
+  int  ps2             = -1;    // SHMS ELREAL
   int  ps5             = -1;    // COIN: SHMS 3/4 & HMS ELREAL
   int  ps6             = -1;    // COIN: SHMS 3/4 & HMS 3/4
-  bool singles_trigger = true;  // Was there a HMS singles trigger for this run?
+  bool singles_trigger = true;  // Was there a SHMS singles trigger for this run?
   if (db[runnum_str].find("daq") != db[runnum_str].end()) {
-    ps3 = db[runnum_str]["daq"]["ps3"].get<int>();
-    ps4 = db[runnum_str]["daq"]["ps4"].get<int>();
+    ps1 = db[runnum_str]["daq"]["ps1"].get<int>();
+    ps2 = db[runnum_str]["daq"]["ps2"].get<int>();
     ps5 = db[runnum_str]["daq"]["ps5"].get<int>();
     ps6 = db[runnum_str]["daq"]["ps6"].get<int>();
-    std::cout << "ps3 = " << ps3 << " and ps4 = " << ps4 << "\n";
+    std::cout << "ps1 = " << ps1 << " and ps2 = " << ps2 << "\n";
     std::cout << "ps5 = " << ps5 << " and ps6 = " << ps6 << "\n";
   } else {
     std::cout << "Error: pre-scaler unspecified in " << run_list_fname << std::endl;
@@ -117,10 +117,10 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   }
 
   // first try the singles trigger
-  int ps = std::max(ps3, ps4);
-  if (ps3 > 0 && ps4 > 0) {
-    std::cout << "Inconsistent values for ps3 and ps4, only can be enabled at the same time\n";
-    std::cout << "(ps3 = " << ps3 << " and ps4 = " << ps4 << ")" << std::endl;
+  int ps = std::max(ps1, ps2);
+  if (ps1 > 0 && ps2 > 0) {
+    std::cout << "Inconsistent values for ps1 and ps2, only can be enabled at the same time\n";
+    std::cout << "(ps1 = " << ps1 << " and ps2 = " << ps2 << ")" << std::endl;
     return -127;
     // if no singles trigger, try the coin trigger
   } else if (ps == -1) {
@@ -135,11 +135,11 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
     }
     std::cout << "Selected " << ((ps5 > ps6) ? "ps5" : "ps6") << std::endl;
   } else {
-    std::cout << "Selected " << ((ps3 > ps4) ? "ps3" : "ps4") << std::endl;
+    std::cout << "Selected " << ((ps1 > ps2) ? "ps1" : "ps2") << std::endl;
   }
   // Should never happen
   if (ps == -1) {
-    std::cout << "ERROR: no pre-scaler was set for the HMS, unable to proceed." << std::endl;
+    std::cout << "ERROR: no pre-scaler was set for the SHMS, unable to proceed." << std::endl;
     return -127;
   }
 
@@ -174,26 +174,26 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   // SHMS Scaler tree
   ROOT::RDataFrame d_sh("TSP", rootfile);
 
-  // Select HMS singles only
-  // event type 2 is a singles event (ps3 or ps4)
+  // Select SHMS singles only
+  // event type 1 is a singles event (ps1 or ps2)
   // event type 4 is a coincidence event (ps5 or ps6)
-  auto dHMS = d.Filter(singles_trigger ? "fEvtHdr.fEvtType == 2" : "fEvtHdr.fEvtType == 4");
+  auto dSHMS = d.Filter(singles_trigger ? "fEvtHdr.fEvtType == 2" : "fEvtHdr.fEvtType == 4");
 
   // Good track cuts
-  auto dGoodTrack = dHMS.Filter(goodTrack);
+  auto dGoodTrack = dSHMS.Filter(goodTrack);
 
   // PID cuts
-  auto dEl = dGoodTrack.Filter(electronCut);
+  auto dHad = dGoodTrack.Filter(hadronCut);
 
   // Data frame index to make histogram definition a bit less cumbersome
   // here we have three versions of the data corresponding to the 3 stages of the
   // dataframe filters:
   //  1. "raw" --> after event type selection
   //  2. "Cuts: tracking" --> after the goodTrack cuts
-  //  3. "Cuts: tracking+PID" --> after goodTrack && electronCut
-  std::vector<std::pair<std::string, RDFInfo>> dfs = {{"raw", {dHMS, "HMS"}},
+  //  3. "Cuts: tracking+PID" --> after goodTrack && hadronCut
+  std::vector<std::pair<std::string, RDFInfo>> dfs = {{"raw", {dSHMS, "SHMS"}},
                                                       {"tracked", {dGoodTrack, "Cuts: tracking"}},
-                                                      {"identified", {dEl, "Cuts: tracking+PID"}}};
+                                                      {"identified", {dHad, "Cuts: tracking+PID"}}};
 
   // =========================================================================================
   // Histograms
@@ -208,35 +208,35 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
     std::string name{kval.first};
     RDFInfo&    df_info{kval.second};
     // Calorimeter
-    h1D["HcalEP"][name] =
-        df_info.df.Histo1D({("H.cal.etottracknorm_" + name).c_str(),
-                            (df_info.title + ";HMS E/P;counts").c_str(), 200, -.5, 2.},
-                           "H.cal.etottracknorm");
+    h1D["PcalEP"][name] =
+        df_info.df.Histo1D({("P.cal.etottracknorm_" + name).c_str(),
+                            (df_info.title + ";SHMS E/P;counts").c_str(), 200, -.5, 2.},
+                           "P.cal.etottracknorm");
     // Cherenkov
-    h1D["HcerNphe"][name] =
-        df_info.df.Histo1D({("H.cer.npeSum_" + name).c_str(),
-                            (df_info.title + "; HMS Cer #phe; counts ").c_str(), 200, -1, 40},
-                           "H.cer.npeSum");
+    h1D["PcerNphe"][name] =
+        df_info.df.Histo1D({("P.hgcer.npeSum_" + name).c_str(),
+                            (df_info.title + "; SHMS HGCer #phe; counts ").c_str(), 200, -1, 40},
+                           "P.hgcer.npeSum");
     // Delta
-    h1D["Hdp"][name] =
-        df_info.df.Histo1D({("H.gtr.dp_" + name).c_str(),
+    h1D["Pdp"][name] =
+        df_info.df.Histo1D({("P.gtr.dp_" + name).c_str(),
                             (df_info.title + ";#deltap [%];counts").c_str(), 200, -30, 40},
-                           "H.gtr.dp");
+                           "P.gtr.dp");
     // theta
-    h1D["Hth"][name] =
-        df_info.df.Histo1D({("H.gtr.th_" + name).c_str(),
-                            (df_info.title + ";#theta_{HMS};counts ").c_str(), 200, -0.1, 0.1},
-                           "H.gtr.th");
+    h1D["Pth"][name] =
+        df_info.df.Histo1D({("P.gtr.th_" + name).c_str(),
+                            (df_info.title + ";#theta_{SHMS};counts ").c_str(), 200, -0.1, 0.1},
+                           "P.gtr.th");
     // phi
-    h1D["Hph"][name] =
-        df_info.df.Histo1D({("H.gtr.ph_" + name).c_str(),
-                            (df_info.title + ";#phi_{HMS};counts ").c_str(), 200, -0.1, 0.1},
-                           "H.gtr.ph");
+    h1D["Pph"][name] =
+        df_info.df.Histo1D({("P.gtr.ph_" + name).c_str(),
+                            (df_info.title + ";#phi_{SHMS};counts ").c_str(), 200, -0.1, 0.1},
+                           "P.gtr.ph");
     // y
-    h1D["Hy"][name] =
-        df_info.df.Histo1D({("H.gtr.y_" + name).c_str(),
-                            (df_info.title + ";ytar_{HMS};counts ").c_str(), 200, -10, 10},
-                           "H.gtr.y");
+    h1D["Py"][name] =
+        df_info.df.Histo1D({("P.gtr.y_" + name).c_str(),
+                            (df_info.title + ";ytar_{SHMS};counts ").c_str(), 200, -10, 10},
+                           "P.gtr.y");
   }
 
   // =========================================================================================
@@ -245,9 +245,9 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   auto total_charge  = d_sh.Max("P.BCM4B.scalerChargeCut");
   auto time_1MHz_cut = d_sh.Max("P.1MHz.scalerTimeCut");
 
-  auto count_raw        = dHMS.Count();
+  auto count_raw        = dSHMS.Count();
   auto count_tracked    = dGoodTrack.Count();
-  auto count_identified = dEl.Count();
+  auto count_identified = dHad.Count();
 
   // -------------------------------------
   // End lazy eval
@@ -256,7 +256,7 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   const double good_time         = *time_1MHz_cut;          // s
 
   std::map<std::string, double> counts = {
-      {"count_e", (*count_identified)},
+      {"count_h", (*count_identified)},
       {"count_tracked", (*count_tracked)},
       {"count_raw", (*count_raw)},
       {"count_identified_pscorr", (*count_identified) * ps_factor},
@@ -268,7 +268,7 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   // Update counts list
   json countdb;
   {
-    std::ifstream input_file(db_path + "/countdb_hms.json");
+    std::ifstream input_file(db_path + "/countdb_shms.json");
     try {
       input_file >> countdb;
     } catch (json::parse_error) {
@@ -301,14 +301,14 @@ int good_hms_counter(int RunNumber = 8585, int nevents = -1, const std::string& 
   countdb[run_str]["ps_factor"]           = ps_factor;
 
   if (update) {
-    std::cout << "Updating " << db_path << "/countdb_hms.json with hms counts\n";
-    std::ofstream output_file(db_path + "/countdb_hms.json");
+    std::cout << "Updating " << db_path << "/countdb_shms.json with shms counts\n";
+    std::ofstream output_file(db_path + "/countdb_shms.json");
     output_file << std::setw(4) << countdb << "\n";
   }
   // =====================================================================================
   // Create monitoring plots
   // =====================================================================================
-  const std::string plot_name = fmt::format("{}/mon_hms_{}.pdf", mon_path, RunNumber);
+  const std::string plot_name = fmt::format("{}/mon_shms_{}.pdf", mon_path, RunNumber);
 
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(1);
