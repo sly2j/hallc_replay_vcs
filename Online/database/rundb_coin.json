@@ -1,0 +1,38 @@
+{
+  "8585": {
+    "daq": {
+      "ps1": 13,
+      "ps2": -1,
+      "ps3": 9,
+      "ps4": -1,
+      "ps5": 0,
+      "ps6": -1
+    },
+    "radiator": {
+      "radiator_id": 0.0,
+      "radiator_status": "OUT"
+    },
+    "run_info": {
+      "accumulated_charge": 0.0,
+      "beam_current": 0.0,
+      "beam_energy": 0,
+      "run_number": 8585,
+      "run_time": 0.0,
+      "run_type": "COIN",
+      "start_time": "00:00:00 07/01/19 EST",
+      "stop_time": "00:00:00 07/01/19 EST"
+    },
+    "spectrometers": {
+      "hms_angle": 15.83,
+      "hms_momentum": 1.35,
+      "shms_angle": 5.75,
+      "shms_momentum": 2.3
+    },
+    "target": {
+      "target_id": 2,
+      "target_label": "LH2",
+      "target_mass_amu": 1.00794,
+      "target_name": "LH2"
+    }
+  }
+}
