@@ -1,0 +1,26 @@
+#
+#.bash_aliases
+#
+
+alias cp='/bin/cp -i'
+alias mv='/bin/mv -i'
+alias rm='/bin/rm -i'
+
+# don't show root splash screen
+alias root='root -l'
+
+#alias go_online="cd $HOME/hallc-online/hallc_replay"
+alias go_vcs="cd $HOME/vcs2019/hallc_replay_vcs"
+
+alias pip_search='pip search --trusted-host pypi.org --trusted-host files.pythonhosted.org'
+alias pip_install='pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org'
+
+alias vim="vim -u $HOME/.vimrc"
+alias tmux="tmux -u -L vcs_online -f $ONLINE_DIR/config/tmux.conf"
+
+alias wget='wget --no-check-certificate'
+alias wgetdir='wget -r -l1 --no-parent '
+
+alias cp='/bin/cp -i'
+alias mv='/bin/mv -i'
+alias rm='/bin/rm -i'

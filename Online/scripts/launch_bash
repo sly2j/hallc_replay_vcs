@@ -1,0 +1,39 @@
+#!/bin/bash
+
+ONLINE_DIR=$(dirname $(readlink -f $0))/..
+source $ONLINE_DIR/scripts/setup_env.sh
+
+print_tmux_help() {
+  clear
+  echo "Using tmux  
+       tmux  commands are prefixed by ctrl-space. "
+  echo "    ctrl-space n      -- Next     window "
+  echo "    ctrl-space p      -- Previous window "
+  echo "    ctrl-space s      -- session browser use arrows to navigate"
+  echo "    ctrl-space w      -- all session window browser use arrows to navigate"
+  echo "    ctrl-space ctrl-space -- cycle between two windows"
+  echo "    ctrl-space c      -- Create new window"
+  echo "    ctrl-space v or | -- create new pane"
+  echo "    ctrl-space d      -- detach current session"
+  echo " "
+}
+
+if [[ "$1" == "sly" ]] ; then
+  export GIT_AUTHOR_NAME="Sylvester Joosten"
+  export GIT_AUTHOR_EMAIL="sjjooste@jlab.org"
+  bash --rcfile $ONLINE_DIR/config/bashrc
+elif [[ "$1" == "help" || "$1" == "-h" ]]; then
+  print_tmux_help
+
+  echo -e "Command:  bash_csv [option]"
+  echo -e "To launch a csv-style bash session (ie use latest software) run 'bash_csv'."
+  echo -e "Other options:\n"
+  echo -e "bash_csv help          Print this help\n"
+  echo -e "bash_csv               Launch a basic config\n"
+  echo -e "bash_csv run_info      Go to run_info IOC, auto_kinematics, and blue screen tmux session\n"
+  echo -e "bash_csv counter       CSV experiment counter config \n"
+  echo -e "Please contact Whit Armstrong (whit@jlab.org) with any questions.\n"
+
+else
+  bash --rcfile $ONLINE_DIR/config/bashrc
+fi
