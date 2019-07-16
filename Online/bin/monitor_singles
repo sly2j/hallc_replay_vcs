@@ -94,13 +94,9 @@ do
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-#pushd $ONLINE_DIR
-
 if [ "$daq_mode" != "shms" ]; then
 root -b -q "scripts/good_hms_counter.cxx+(${run_number},${num_events},\"${daq_mode}\")"
 fi
 if [ "$daq_mode" != "hms" ]; then
 root -b -q "scripts/good_shms_counter.cxx+(${run_number},${num_events},\"${daq_mode}\")"
 fi
-
-#popd
