@@ -1,5 +1,5 @@
 ## Get the absolute path to this replay directory
-REPLAY_DIR = "$(abspath $(shell pwd))/.."
+REPLAY_DIR = "$(realpath $(abspath $(shell pwd))/..)"
 
 ## Communicate the absolute path the this replay directory as preprocessor define
 ## This is necessary to locate the correct database file
