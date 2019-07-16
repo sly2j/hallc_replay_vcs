@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import argparse
+
+COMMENT_FILE = 'database/commentdb.json'
+
+def _replay_dir():
+    """Get the current replay directory.
+
+    Current replay directory is the replay directory that contains this script.
+    """
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.realpath(script_dir + "/../..")
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument( "run", help="Run number")
+parser.add_argument( "comment", help="Comment for this run, use 'junk' for bad runs.")
+args = parser.parse_args()
+
+db = {}
+with open(_replay_dir() + '/Online/' + COMMENT_FILE, 'r') as infile:
+    db = json.load(infile)
+
+db[args.run] = {'comment': args.comment}
+
+with open(_replay_dir() + '/Online/' + COMMENT_FILE, 'w') as outfile:
+    json.dump(db, outfile, indent=2, sort_keys=True)
