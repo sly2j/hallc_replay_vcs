@@ -1,0 +1,62 @@
+{
+    "8585": {
+        "missing_mass": {
+            "VCS": {
+                "index": -1,
+                "integral": 0.0,
+                "mass": -1.0,
+                "max": 0.0,
+                "sigma": 6.9527371044242e-310,
+                "sum_tot": 0.0
+            },
+            "pi0": {
+                "index": 0,
+                "integral": 0.0,
+                "mass": -1.0,
+                "max": 0.0,
+                "sigma": 6.95273710443465e-310,
+                "sum_tot": 0.0
+            },
+            "zz_other": {
+                "index": 0,
+                "integral": 2.52517499179e-312,
+                "mass": -1.0,
+                "max": 0.0,
+                "sigma": 1.93101617002e-312,
+                "sum_tot": 0.0
+            }
+        },
+        "timing": {
+            "peak1": {
+                "background_avg": 0.0,
+                "background_high": 0.0,
+                "background_low": 0.0,
+                "delay": -1.0,
+                "events": 0.0,
+                "index": -1,
+                "max": 0.0,
+                "raw_events": 0.0
+            },
+            "peak2": {
+                "background_avg": 0.0,
+                "background_high": 0.0,
+                "background_low": 0.0,
+                "delay": 0.0,
+                "events": 0.0,
+                "index": 0,
+                "max": 0.0,
+                "raw_events": 0.0
+            },
+            "peak3": {
+                "background_avg": 0.0,
+                "background_high": 0.0,
+                "background_low": 0.0,
+                "delay": 0.0,
+                "events": 0.0,
+                "index": 0,
+                "max": 0.0,
+                "raw_events": 0.0
+            }
+        }
+    }
+}

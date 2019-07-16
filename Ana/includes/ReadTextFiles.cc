@@ -22,7 +22,7 @@ int ReadHeader(float (&inc)[25]){
 	ifstream infile;
 	string ff, line;
 	int test;
-	ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/ANA_CUTS.input");
+	ff = Form(VCS_REPLAY_PATH "/Ana/ANA_CUTS.input");
 	infile.open(ff.c_str());
 	if (!infile) {
 		cout<<"ERROR unable to read header file"<<endl;
@@ -58,7 +58,7 @@ int FillSingleRunRunInfos(string datatype,int runID, float &Eb, float &targetmas
         string ff;
         int jj=0, run=runID;
 
-        ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/singleruninfo/run_info_%d.txt",runID); 	
+        ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/singleruninfo/run_info_%d.txt",runID); 	
 	infile.open(ff.c_str());
 	
 	if (!infile) {
@@ -109,7 +109,7 @@ int FillSingleRunTriggerInfos(string datatype,int runID, float &HMS34rates, floa
         string ff;
         int jj=0, run=runID;
 
-        ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/singleruninfo/trigger_info_%d.txt",runID); 	
+        ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/singleruninfo/trigger_info_%d.txt",runID); 	
 	infile.open(ff.c_str());
 	
 	if (!infile) {
@@ -140,7 +140,7 @@ int FillSingleRunEffInfos(string datatype,int runID, float &HMS_E_eff, float &HM
         string ff;
         int jj=0, run=runID;
 
-        ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/singleruninfo/eff_info_%d.txt",runID); 	
+        ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/singleruninfo/eff_info_%d.txt",runID); 	
 	infile.open(ff.c_str());
 	
 	if (!infile) {
@@ -173,7 +173,7 @@ int FillEffInfos(string datatype,int *runtable,
         string ff;
         int jj=0, run=-1;
 
-        ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/mergedruninfo/eff_mergedruninfo.txt"); 	
+        ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/mergedruninfo/eff_mergedruninfo.txt"); 	
 	infile.open(ff.c_str());
 	
 	if (!infile) {
@@ -212,7 +212,7 @@ int FillTriggerInfos(string datatype,int *runtable,
         string ff;
         int jj=0, run=-1;
 
-        ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/mergedruninfo/trigger_mergedruninfo.txt"); 	
+        ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/mergedruninfo/trigger_mergedruninfo.txt"); 	
 	infile.open(ff.c_str());
 	
 	if (!infile) {
@@ -263,7 +263,7 @@ int FillRunInfos( string datatype,
         string ff;
         int jj=0;
 
-	ff = Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/datainfo/mergedruninfo/run_mergedruninfo.txt");	 
+	ff = Form(VCS_REPLAY_PATH "/Ana/datainfo/mergedruninfo/run_mergedruninfo.txt");	 
 	
 	infile.open(ff.c_str());
 	

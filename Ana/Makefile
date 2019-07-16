@@ -1,4 +1,9 @@
-FLAGS = -g -fPIC -Wno-conversion -Wno-narrowing -ansi -std=c++0x -Wno-overloaded-virtual -Wno-long-long -fno-common -g
+## Get the absolute path to this replay directory
+REPLAY_DIR = "$(realpath $(abspath $(shell pwd))/..)"
+
+## Communicate the absolute path the this replay directory as preprocessor define
+## This is necessary to locate the correct database file
+FLAGS = -g -fPIC -Wno-conversion -Wno-narrowing -DVCS_REPLAY_PATH=\"$(REPLAY_DIR)\" -ansi -std=c++0x -Wno-overloaded-virtual -Wno-long-long -fno-common -g
 QMAKE_CC = g++
 
 export ROOTLIB=`root-config --glibs`
@@ -15,7 +20,7 @@ FIT_C = $(filter-out TCSana.cc $(FIT_CT))
 FIT_O = $(FIT_C:.cc=.o)
 FIT_H = $(FIT_C:.cc=.h)
 
-ANA_C = includes/ReadHallCData.cc includes/Utils.cc includes/Constants.cc includes/ReadTextFiles.cc
+ANA_C = includes/ReadHallCData.cc includes/Utils.cc includes/Constants.cc includes/ReadTextFiles.cc includes/Database.cc
 ANA_O =  $(ANA_C:.cc=.o)
 ANA_H =  $(ANA_C:.cc=.h)
 

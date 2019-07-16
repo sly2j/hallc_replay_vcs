@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ONLINE_DIR=$(dirname $(readlink -f $0))/..
+
+$ONLINE_DIR/scripts/launch_bash $@
