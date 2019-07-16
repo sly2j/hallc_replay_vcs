@@ -697,13 +697,14 @@
       "radiator_status": "OUT"
     },
     "run_info": {
-      "accumulated_charge": 0.0,
-      "beam_current": 63.605010498686916,
+      "accumulated_charge": 47203.0399568998,
+      "beam_current": 39.59986241351808,
       "beam_energy": 3.65,
       "run_number": 8700,
-      "run_time": 0.0001,
+      "run_time": 1192.0001,
       "run_type": "COIN",
-      "start_time": "09:36:04 07/16/19 EDT"
+      "start_time": "09:36:04 07/16/19 EDT",
+      "stop_time": "09:56:42 07/16/19 EDT"
     },
     "spectrometers": {
       "hms_angle": 17.03,

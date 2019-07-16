@@ -1,6 +1,13 @@
 #define ReadHallCData_cxx
 #include "ReadHallCData.h"
+
+// To write to VCS database
+#include "Database.h"
+#include "nlohmann/json.hpp" 
+using nlohmann::json;
+
 using namespace std;
+
 
 
 void ReadHallCData::Loop (vector <string> vector_name, int runID, string  process, string what, string target){
@@ -568,6 +575,24 @@ void ReadHallCData::Loop (vector <string> vector_name, int runID, string  proces
 	out2.open(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/files/lumi_%d.dat", runID));
 	out2 << runID << " "<< lumiexp_HMS << " "<<lumiexp_SHMS <<" "<< HMS_act_time << " "<< SHMS_act_time << " "<<HMS_B2_cur_cut<<" "<< SHMS_B2_cur_cut<<endl;
 	out2.close();
+  
+  // Also write out luminosity information to the VCS database
+  {
+    const std::string db_fname = VCS_REPLAY_PATH "/Online/database/VCSdb.json";
+    std::cout << "Writing luminosity to VCS database: " << db_fname << "\n";
+    // step 1. --> load database to memory
+    auto db = ReadJSON(db_fname);
+    // step 2. --> Add info to database
+    const std::string run_str = std::to_string(runID);
+    db[run_str]["luminosity"]["HMS"]["luminosity"] = lumiexp_HMS;
+    db[run_str]["luminosity"]["HMS"]["active_time"] = HMS_act_time;
+    db[run_str]["luminosity"]["HMS"]["B2_current_cut"] = HMS_B2_cur_cut;
+    db[run_str]["luminosity"]["SHMS"]["luminosity"] = lumiexp_SHMS;
+    db[run_str]["luminosity"]["SHMS"]["active_time"] = SHMS_act_time;
+    db[run_str]["luminosity"]["SHMS"]["B2_current_cut"] = SHMS_B2_cur_cut;
+    // step 3. --> write database
+    WriteJSON(db_fname, db);
+  }
 			
 	return ;
 
@@ -768,7 +793,29 @@ int ReadHallCData::DrawHist(string process, int run){
 	outfile<< pos_mem[1]<<" "<<int_mem[1]-sum_bkg_av<<" "<<int_mem[1]<<" "<<sum_bkg_up<<" "<<sum_bkg_low<<" "<<max_mem[1]<<endl;
 	outfile<< pos_mem[2]<<" "<<int_mem[2]-sum_bkg_av<<" "<<int_mem[2]<<" "<<sum_bkg_up<<" "<<sum_bkg_low<<" "<<max_mem[2]<<endl;
 	outfile.close();
-	
+
+  // Also write out timing information to the VCS database
+  {
+    const std::string db_fname = VCS_REPLAY_PATH  "/Online/database/VCSdb.json";
+    std::cout << "Writing timing info to VCS database: " << db_fname << "\n";
+    // step 1. --> load database to memory
+    auto db = ReadJSON(db_fname);
+    // step 2. --> Add info to database
+    const std::string run_str = std::to_string(run);
+    std::vector<std::string> peak_names = {"peak1", "peak2", "peak3"};
+    for (int i = 0; i < 3; ++i) {
+      db[run_str]["timing"][peak_names[i]]["delay"] = pos_mem[i];
+      db[run_str]["timing"][peak_names[i]]["events"] = int_mem[i] - sum_bkg_av;
+      db[run_str]["timing"][peak_names[i]]["raw_events"] = int_mem[i];
+      db[run_str]["timing"][peak_names[i]]["background_avg"] = sum_bkg_av;
+      db[run_str]["timing"][peak_names[i]]["background_low"] = sum_bkg_low;
+      db[run_str]["timing"][peak_names[i]]["background_high"] = sum_bkg_up;
+      db[run_str]["timing"][peak_names[i]]["index"] = itag[i];
+      db[run_str]["timing"][peak_names[i]]["max"] = max_mem[i];
+    }
+    // step 3. --> write database
+    WriteJSON(db_fname, db);
+  }
 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/cointime_%d.pdf",run)); c1->Clear(); c1->cd(1);
@@ -1178,6 +1225,27 @@ int ReadHallCData::DrawHist(string process, int run){
 	out3<<pos_mem[1]<<" "<<mass_integral[1]<<" "<<endl;
 	out3<<pos_mem[2]<<" "<<mass_integral[2]<<" "<<endl;
 	out3.close();
+
+  // Also write out timing missing mass info to the VCS database
+  {
+    const std::string db_fname = VCS_REPLAY_PATH "/Online/database/VCSdb.json";
+    std::cout << "Writing MM info to VCS database: " << db_fname << "\n";
+    // step 1. --> load database to memory
+    auto db = ReadJSON(db_fname);
+    // step 2. --> Add info to database
+    const std::string run_str = std::to_string(run);
+    std::vector<std::string> peak_names = {"VCS", "pi0", "zz_other"};
+    for (int i = 0; i < 3; ++i) {
+      db[run_str]["missing_mass"][peak_names[i]]["mass"] = pos_mem[i];
+      db[run_str]["missing_mass"][peak_names[i]]["integral"] = mass_integral[i];
+      db[run_str]["missing_mass"][peak_names[i]]["sigma"] = mass_sum1s[i];
+      db[run_str]["missing_mass"][peak_names[i]]["sum_tot"] = int_mem[i];
+      db[run_str]["missing_mass"][peak_names[i]]["index"] = itag[i];
+      db[run_str]["missing_mass"][peak_names[i]]["max"] = max_mem[i];
+    }
+    // step 3. --> write database
+    WriteJSON(db_fname, db);
+  }
 
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/exclusivity_%d.pdf)",run));
 	c1->SaveAs(Form("/home/cdaq/vcs2019/hallc_replay_vcs/Ana/Results/ana_monitor_%d.pdf",run)); 

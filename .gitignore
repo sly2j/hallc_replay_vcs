@@ -12,6 +12,7 @@
 *.root
 *.swp
 *.swa
+*.o
 
 
 # Directories
